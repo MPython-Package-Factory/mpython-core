@@ -13,10 +13,13 @@ jobs:
     permissions:
       contents: write  
       id-token: write 
+    outputs:
+      MPYTHON_VERSION: ${{ steps.getversion.outputs.MPYTHON_VERSION }}
     steps: 
       - name: Check out package
         uses: actions/checkout@v4
       - name: Get package version
+        id: getversion
         run: |
            VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
            echo "pyproject.toml version: $VERSION" 
@@ -84,6 +87,9 @@ jobs:
       and upload it to GitHub Release
     needs:
     - publish-to-pypi
+    - create-tag
+    env:
+      MPYTHON_VERSION: ${{ needs.create-tag.outputs.MPYTHON_VERSION }}
     runs-on: ubuntu-latest
 
     permissions:
