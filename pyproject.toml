@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mpython-wrapper"
+name = "mpython-core"
 version = "25.04alpha1"
 description = "Python bindings for the SPM software."
 readme = "README.md"
@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/MPython-Package-Factory/mpython-wrapper"
+Repository = "https://github.com/MPython-Package-Factory/mpython-core"
 
 [tool.setuptools.packages]
 find = {}
