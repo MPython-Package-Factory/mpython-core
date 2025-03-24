@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:      
-      - '*'           # Push events to every tag not containing /
+      - '*'  
 
 jobs:
   build:
