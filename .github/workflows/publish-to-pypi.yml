@@ -3,14 +3,38 @@ name: Publish Package to PyPI and TestPyPI
 on:
   workflow_dispatch:
   push:
-    tags:      
-      - '*'  
+    paths: 
+      - pyproject.toml
 
-jobs:
+jobs: 
+  create-tag:
+    name: Create tag from new version
+    runs-on: "ubuntu-latest"
+    needs:
+    - build
+    steps: 
+      - name: Check out package
+        uses: actions/checkout@v4
+        
+      - name: Get package version
+        run: |
+           VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
+           echo "pyproject.toml version: $VERSION" 
+           git config user.name github-actions
+           git config user.email github-actions@github.com
+           MSG=$(git log $(git describe --tags --abbrev=0)..HEAD --oneline)
+           echo "Creating tag $VERSION with message:"
+           echo "$MSG"
+           git tag -a "$VERSION" -m "$MSG"
+           
+      - name: Publish tags
+        run: git push --tags 
+
   build:
     name: Build Package
     runs-on: ubuntu-latest
-
+    needs: 
+    - create-tag
     steps:
     - uses: actions/checkout@v4
       with:
@@ -32,7 +56,7 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
-
+       
   publish-to-pypi:
     name: >-
       Publish Package to PyPI
