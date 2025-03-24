@@ -33,7 +33,7 @@ class Runtime:
 
     @staticmethod
     def _process_argout(res):
-        return MatlabType.from_any(res)
+        return MatlabType._from_runtime(res)
 
     @staticmethod
     def _import_initialize():
