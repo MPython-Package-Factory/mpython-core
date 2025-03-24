@@ -13,6 +13,8 @@ jobs:
     permissions:
       contents: write  
       id-token: write 
+    outputs: 
+      MPYTHON_VERSION: ${{ steps.getversion.outputs.MPYTHON_VERSION }} 
     steps: 
       - name: Check out package
         uses: actions/checkout@v4
@@ -26,6 +28,7 @@ jobs:
            echo "Creating tag $VERSION with message:"
            echo "$MSG"
            git tag -a "$VERSION" -m "$MSG"
+           echo "MPYTHON_VERSION=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Publish tags
         run: git push --tags 
 
@@ -83,6 +86,7 @@ jobs:
       and upload it to GitHub Release
     needs:
     - publish-to-pypi
+    - create-tag
     runs-on: ubuntu-latest
 
     permissions:
@@ -106,7 +110,7 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       run: | 
         gh release create
-        "$GITHUB_REF_NAME"
+        "${{ needs.create-tag.outputs.MPYTHON_VERSION }}"
         --repo "$GITHUB_REPOSITORY"
         --notes ""
     - name: Upload artifact signatures to GitHub Release
@@ -117,7 +121,7 @@ jobs:
       # sigstore-produced signatures and certificates.
       run: |
         gh release upload
-        "$GITHUB_REF_NAME" dist/**
+        "${{ needs.create-tag.outputs.MPYTHON_VERSION }}" dist/**
         --repo "$GITHUB_REPOSITORY"
 
   publish-to-testpypi:
