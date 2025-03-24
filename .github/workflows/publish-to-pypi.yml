@@ -26,6 +26,7 @@ jobs:
            echo "Creating tag $VERSION with message:"
            echo "$MSG"
            git tag -a "$VERSION" -m "$MSG"
+           echo "MPYTHON_VERSION=$VERSION" >> $GITHUB_ENV
       - name: Publish tags
         run: git push --tags 
 
@@ -105,9 +106,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       run: | 
-        VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
         gh release create
-        "$VERSION"
+        "${{ env.MPYTHON_VERSION }}"
         --repo "$GITHUB_REPOSITORY"
         --notes ""
     - name: Upload artifact signatures to GitHub Release
@@ -117,9 +117,8 @@ jobs:
       # `dist/` contains the built packages, and the
       # sigstore-produced signatures and certificates.
       run: |
-        VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
         gh release upload
-        "$GITHUB_REF_NAME" dist/**
+        "${{ env.MPYTHON_VERSION }}" dist/**
         --repo "$GITHUB_REPOSITORY"
 
   publish-to-testpypi:
