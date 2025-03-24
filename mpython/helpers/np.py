@@ -17,8 +17,8 @@ already exist in the numpy namespace. Examples include:
 
 as well as all math functions (`np.sum`, `np.mean`, etc.)
 """
-import numpy as np
 
+import numpy as np
 
 # ----------
 # properties

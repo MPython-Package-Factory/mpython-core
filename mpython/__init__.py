@@ -1,19 +1,19 @@
-from .runtime import Runtime
+from .array import Array
+from .cell import Cell
 from .matlab_class import MatlabClass
 from .matlab_function import MatlabFunction
-from .cell import Cell
-from .struct import Struct
-from .array import Array
+from .runtime import Runtime
 from .sparse_array import SparseArray
+from .struct import Struct
 
 __all__ = [
-    'Runtime',
-    'MatlabClass',
-    'MatlabFunction',
-    'Cell',
-    'Struct',
-    'Array',
-    'SparseArray'
+    "Runtime",
+    "MatlabClass",
+    "MatlabFunction",
+    "Cell",
+    "Struct",
+    "Array",
+    "SparseArray",
 ]
 
 # ----------------------------------------------------------------------

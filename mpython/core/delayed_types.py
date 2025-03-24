@@ -1,8 +1,8 @@
-from .base_types import AnyMatlabArray
-from ..utils import _empty_array
-from ..exceptions import IndexOrKeyOrAttributeError
-
 import numpy as np
+
+from ..exceptions import IndexOrKeyOrAttributeError
+from ..utils import _empty_array
+from .base_types import AnyMatlabArray
 
 
 class AnyDelayedArray(AnyMatlabArray):
@@ -87,10 +87,10 @@ class AnyDelayedArray(AnyMatlabArray):
             Index into the parent where this element will be inserted.
         """
         super().__init__()
-        self._parent = parent       # reference to parent container
-        self._index = index         # index into parent container
-        self._future = None         # future array
-        self._finalized = False     # whether this array has been finalized
+        self._parent = parent  # reference to parent container
+        self._index = index  # index into parent container
+        self._future = None  # future array
+        self._finalized = False  # whether this array has been finalized
 
     @property
     def _final(self):
@@ -167,9 +167,7 @@ class AnyDelayedArray(AnyMatlabArray):
         if self._future is None:
             self._future = DelayedCell((), self._parent, *self._index)
         if not isinstance(self._future, DelayedCell):
-            raise TypeError(
-                f"{type(self._future)} cannot be interpreted as a Cell"
-            )
+            raise TypeError(f"{type(self._future)} cannot be interpreted as a Cell")
         return self._future
 
     @property
@@ -177,9 +175,7 @@ class AnyDelayedArray(AnyMatlabArray):
         if self._future is None:
             self._future = DelayedStruct((), self._parent, *self._index)
         if not isinstance(self._future, DelayedStruct):
-            raise TypeError(
-                f"{type(self._future)} cannot be interpreted as a Struct"
-            )
+            raise TypeError(f"{type(self._future)} cannot be interpreted as a Struct")
         return self._future
 
     @property
@@ -187,17 +183,13 @@ class AnyDelayedArray(AnyMatlabArray):
         if self._future is None:
             self._future = DelayedArray([0], self._parent, *self._index)
         if not isinstance(self._future, DelayedArray):
-            raise TypeError(
-                f"{type(self._future)} cannot be interpreted as a Array"
-            )
+            raise TypeError(f"{type(self._future)} cannot be interpreted as a Array")
         return self._future
 
     def as_obj(self, obj):
         from ..matlab_class import MatlabClass
-        if (
-            self._future is not None and
-            not isinstance(self._future, MatlabClass)
-        ):
+
+        if self._future is not None and not isinstance(self._future, MatlabClass):
             raise TypeError(
                 f"{type(self._future)} cannot be interpreted as a {type(obj)}"
             )
@@ -216,10 +208,10 @@ class AnyDelayedArray(AnyMatlabArray):
         return self.as_struct[key]
 
     def __setitem__(self, index, value):
-        from ..matlab_class import MatlabClass
-        from ..cell import Cell
-        from ..struct import Struct
         from ..array import Array
+        from ..cell import Cell
+        from ..matlab_class import MatlabClass
+        from ..struct import Struct
 
         if isinstance(index, str):
             arr = self.as_struct
@@ -227,8 +219,7 @@ class AnyDelayedArray(AnyMatlabArray):
         elif isinstance(value, MatlabClass):
             if index not in (0, -1):
                 raise NotImplementedError(
-                    "Implicit advanced indexing not implemented for",
-                    type(value)
+                    "Implicit advanced indexing not implemented for", type(value)
                 )
             self.as_obj(value)
             return self._finalize()
@@ -255,6 +246,7 @@ class AnyDelayedArray(AnyMatlabArray):
             return super().__setattr__(key, value)
         self.as_struct[key] = value
         return self._finalize()  # Setter -> we can trigger finalize
+
 
 class WrappedDelayedArray(AnyDelayedArray):
     """
@@ -316,6 +308,7 @@ class DelayedStruct(WrappedDelayedArray):
             Index of the future object in its parent.
         """
         from ..struct import Struct
+
         future = Struct.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)
@@ -340,14 +333,15 @@ class DelayedCell(WrappedDelayedArray):
             Index of the future object in its parent.
         """
         from ..cell import Cell
+
         future = Cell.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)
 
         # Insert delayed arrays instead of the usual defaults
         opt = dict(
-            flags=['refs_ok', 'zerosize_ok', 'multi_index'],
-            op_flags=['writeonly', 'no_broadcast']
+            flags=["refs_ok", "zerosize_ok", "multi_index"],
+            op_flags=["writeonly", "no_broadcast"],
         )
         arr = np.ndarray.view(self._future, np.ndarray)
         with np.nditer(arr, **opt) as iter:
@@ -374,6 +368,7 @@ class DelayedArray(WrappedDelayedArray):
             Index of the future object in its parent.
         """
         from ..array import Array
+
         future = Array.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)

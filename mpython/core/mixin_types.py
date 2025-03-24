@@ -1,16 +1,18 @@
-from .base_types import MatlabType
-from .wrapped_types import WrappedArray
-from .delayed_types import AnyDelayedArray
-from ..utils import _matlab_array_types, _empty_array
+from collections.abc import (
+    ItemsView,
+    KeysView,
+    MutableMapping,
+    MutableSequence,
+    ValuesView,
+)
 
 import numpy as np
-from collections.abc import (
-    MutableSequence, 
-    MutableMapping, 
-    KeysView, 
-    ValuesView, 
-    ItemsView
-)
+
+from ..utils import _empty_array, _matlab_array_types
+from .base_types import MatlabType
+from .delayed_types import AnyDelayedArray
+from .wrapped_types import WrappedArray
+
 
 class _ListishMixin:
     """These methods are implemented in Cell and Array, but not Struct."""
@@ -65,7 +67,7 @@ class _SparseMixin:
         indices += 1
         size = np.array([[*np.shape(self)]])
         return dict(
-            type__='sparse',
+            type__="sparse",
             size__=size,
             indices__=indices,
             values__=values,
@@ -73,15 +75,15 @@ class _SparseMixin:
 
     @classmethod
     def _from_runtime(cls, dictobj: dict):
-        if dictobj['type__'] != 'sparse':
+        if dictobj["type__"] != "sparse":
             raise ValueError("Not a matlab sparse matrix")
-        size = np.array(dictobj['size__'], dtype=np.uint64).ravel()
+        size = np.array(dictobj["size__"], dtype=np.uint64).ravel()
         size = size.tolist()
-        dtype = _matlab_array_types()[type(dictobj['values__'])]
-        indices = np.asarray(dictobj['indices__'], dtype=np.long) - 1
-        values = np.asarray(dictobj['values__'], dtype=dtype).ravel()
+        dtype = _matlab_array_types()[type(dictobj["values__"])]
+        indices = np.asarray(dictobj["indices__"], dtype=np.long) - 1
+        values = np.asarray(dictobj["values__"], dtype=dtype).ravel()
         return cls.from_coo(values, indices.T, size)
-    
+
 
 class _ListMixin(_ListishMixin, MutableSequence):
     """These methods are implemented in Cell, but not in Array or Struct."""
@@ -156,7 +158,7 @@ class _ListMixin(_ListishMixin, MutableSequence):
         new_shape[0] *= value
         np.ndarray.resize(self, new_shape, refcheck=False)
         for i in range(1, value):
-            self[i*length:(i+1)*length] = self[:length]
+            self[i * length : (i + 1) * length] = self[:length]
         return self
 
     # In lists, __contains__ should be treated as meaning "contains this
@@ -247,7 +249,7 @@ class _ListMixin(_ListishMixin, MutableSequence):
         new_shape = list(np.shape(self))
         new_shape[0] += 1
         np.ndarray.resize(self, new_shape, refcheck=False)
-        self[index+1:] = self[index:-1]
+        self[index + 1 :] = self[index:-1]
         self[index] = obj
 
     def pop(self, index=-1):
@@ -303,9 +305,7 @@ class _ListMixin(_ListishMixin, MutableSequence):
                 self.reverse()
 
 
-
 class _DictMixin(MutableMapping):
-
     # NOTE:
     #
     #   Making Struct inherit from MutableMapping is a bit hacky
@@ -337,7 +337,6 @@ class _DictMixin(MutableMapping):
 
     # --- views --------------------------------------------------------
     class KeysView(KeysView):
-
         def __init__(self, parent):
             self._parent = parent
 
@@ -356,7 +355,6 @@ class _DictMixin(MutableMapping):
         __str__ = __repr__
 
     class ValuesView(ValuesView):
-
         def __init__(self, parent):
             self._parent = parent
 
@@ -375,7 +373,6 @@ class _DictMixin(MutableMapping):
         __str__ = __repr__
 
     class ItemsView(ItemsView):
-
         def __init__(self, parent):
             self._parent = parent
 
@@ -415,14 +412,13 @@ class _DictMixin(MutableMapping):
 
     def __getitem__(self, key):
         if key in self.keys():
-
             # NOTE
             #   If some of the dictionaries in the array do not have
             #   their field `key` properly set, we assign an empty
             #   numeric array (same default value as in matlab).
 
             arr = np.ndarray.view(self, np.ndarray)
-            opt = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readonly'])
+            opt = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readonly"])
             with np.nditer(arr, **opt) as iter:
                 for elem in iter:
                     elem.item().setdefault(key, _empty_array())
@@ -433,7 +429,6 @@ class _DictMixin(MutableMapping):
             return self.as_dict(keys=[key])[key]
 
         else:
-
             # NOTE
             #   We return a new (delayed) struct, whose elements under
             #  `key` are delayed arrays that point to `self` (and *not*
@@ -446,11 +441,12 @@ class _DictMixin(MutableMapping):
 
             parent = getattr(self, "_delayed_wrapper", self)
 
-            from ..struct import Struct # FIXME: circular imports
+            from ..struct import Struct  # FIXME: circular imports
+
             delayed = Struct(self.shape)
             opt = dict(
-                flags=['refs_ok', 'zerosize_ok', 'multi_index'],
-                op_flags=['writeonly', 'no_broadcast']
+                flags=["refs_ok", "zerosize_ok", "multi_index"],
+                op_flags=["writeonly", "no_broadcast"],
             )
             arr = np.ndarray.view(delayed, np.ndarray)
             with np.nditer(arr, **opt) as iter:
@@ -464,7 +460,6 @@ class _DictMixin(MutableMapping):
         arr = np.ndarray.view(self, np.ndarray)
 
         if np.ndim(arr) == 0:
-
             # Scalar array: assign value to the field
             if isinstance(value, self.deal):
                 # `deal` objects are cells and cannot be 0-dim
@@ -472,12 +467,12 @@ class _DictMixin(MutableMapping):
             arr.item()[key] = MatlabType.from_any(value)
 
         elif isinstance(value, self.deal):
-
             # Each element in the struct array is matched with an element
             # in the "deal" array.
             value = value.broadcast_to_struct(self)
-            opt = dict(flags=['refs_ok', 'zerosize_ok', 'multi_index'],
-                       op_flags=['readonly'])
+            opt = dict(
+                flags=["refs_ok", "zerosize_ok", "multi_index"], op_flags=["readonly"]
+            )
             with np.nditer(arr, **opt) as iter:
                 for elem in iter:
                     val = value[iter.multi_index]
@@ -486,9 +481,8 @@ class _DictMixin(MutableMapping):
                     elem.item()[key] = MatlabType.from_any(val)
 
         else:
-
             # Assign the same value to all elements in the struct array.
-            opt = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readonly'])
+            opt = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readonly"])
             value = MatlabType.from_any(value)
             with np.nditer(arr, **opt) as iter:
                 for elem in iter:
@@ -498,7 +492,7 @@ class _DictMixin(MutableMapping):
         if key not in self._allkeys():
             raise KeyError(key)
         arr = np.ndarray.view(self, np.ndarray)
-        opt = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readonly'])
+        opt = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readonly"])
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
                 del elem.item()[key]
@@ -516,7 +510,7 @@ class _DictMixin(MutableMapping):
 
     def setdefault(self, key, value=None):
         arr = np.ndarray.view(self, np.ndarray)
-        opt = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readonly'])
+        opt = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readonly"])
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
                 item = elem.item()
@@ -527,14 +521,16 @@ class _DictMixin(MutableMapping):
                 item.setdefault(key, value)
 
     def update(self, other):
-        from ..struct import Struct # FIXME: circular imports
+        from ..struct import Struct  # FIXME: circular imports
+
         other = Struct.from_any(other)
         other = np.ndarray.view(other, np.ndarray)
         other = np.broadcast_to(other, self.shape)
 
         arr = np.ndarray.view(self, np.ndarray)
-        opt = dict(flags=['refs_ok', 'zerosize_ok', 'multi_index'],
-                   op_flags=['readonly'])
+        opt = dict(
+            flags=["refs_ok", "zerosize_ok", "multi_index"], op_flags=["readonly"]
+        )
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
                 other_elem = other[iter.multi_index]
@@ -542,7 +538,7 @@ class _DictMixin(MutableMapping):
                 item.update(other_elem)
 
     # --- helper ------------------------------------------------------
-    class deal: # FIXME: Removed dependency to Cell
+    class deal:  # FIXME: Removed dependency to Cell
         """
         Helper class to assign values into a specific field of a Struct array.
 
@@ -558,6 +554,7 @@ class _DictMixin(MutableMapping):
         # [{"field": 1}, {"field": 2}]
         ```
         """
+
         # The idea is to have a type that tells Struct.__setattr__
         # that we want to broadcast the object before assigning it to
         # the field. We let the target struct tell this object which
@@ -569,10 +566,10 @@ class _DictMixin(MutableMapping):
             return cls.from_any(arg, **kwargs)
 
         def broadcast_to_struct(self, struct):
-            shape = struct.shape + self.shape[len(struct.shape):]
+            shape = struct.shape + self.shape[len(struct.shape) :]
             return np.broadcast_to(self, shape)
 
         def to_cell(self):
-            from ..cell import Cell # FIXME: circular imports
-            return np.ndarray.view(self, Cell)
+            from ..cell import Cell  # FIXME: circular imports
 
+            return np.ndarray.view(self, Cell)

@@ -102,4 +102,3 @@ This project is licensed under the [GNU General Public License v2 (GPLv2)](LICEN
 ## Links
 
 - [Repository](https://github.com/MPython-Package-Factory/mpython-core)
-

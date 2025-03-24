@@ -1,7 +1,9 @@
-from .core import MatlabType
+import warnings
 
 import numpy as np
-import warnings
+
+from .core import MatlabType
+
 
 class MatlabClass(MatlabType):
     _subclasses = dict()
@@ -21,11 +23,11 @@ class MatlabClass(MatlabType):
 
     def __init_subclass__(cls):
         super().__init_subclass__()
-        if hasattr(cls, 'subsref'):
+        if hasattr(cls, "subsref"):
             cls.__getitem__ = MatlabClass.__getitem
             cls.__call__ = MatlabClass.__call
 
-        if hasattr(cls, 'subsasgn'):
+        if hasattr(cls, "subsasgn"):
             cls.__setitem__ = MatlabClass.__setitem
 
         MatlabClass._subclasses[cls.__name__] = cls
@@ -40,12 +42,10 @@ class MatlabClass(MatlabType):
 
     @classmethod
     def _from_runtime(cls, objdict):
-        if objdict['class__'] in MatlabClass._subclasses.keys():
-            obj = MatlabClass._subclasses[objdict['class__']](
-                _objdict=objdict
-            )
+        if objdict["class__"] in MatlabClass._subclasses.keys():
+            obj = MatlabClass._subclasses[objdict["class__"]](_objdict=objdict)
         else:
-            warnings.warn(f'Unknown Matlab class type: {objdict["class__"]}')
+            warnings.warn(f"Unknown Matlab class type: {objdict['class__']}")
             obj = MatlabClass(_objdict=objdict)
         return obj
 
@@ -54,36 +54,36 @@ class MatlabClass(MatlabType):
 
     def __getattr(self, key):
         try:
-            return self.subsref({'type': '.', 'subs': key})
+            return self.subsref({"type": ".", "subs": key})
         except Exception:
             raise AttributeError(key)
 
     def __getitem(self, ind):
         index = self._process_index(ind)
         try:
-            return self.subsref({'type': '()', 'subs': index})
+            return self.subsref({"type": "()", "subs": index})
         except Exception:
             ...
         try:
-            return self.subsref({'type': '{}', 'subs': index})
+            return self.subsref({"type": "{}", "subs": index})
         except Exception:
             raise IndexError(index)
 
     def __setitem(self, ind, value):
         index = self._process_index(ind)
         try:
-            return self.subsasgn({'type': '()', 'subs': index}, value)
+            return self.subsasgn({"type": "()", "subs": index}, value)
         except Exception:
             ...
         try:
-            return self.subsasgn({'type': '{}', 'subs': index}, value)
+            return self.subsasgn({"type": "{}", "subs": index}, value)
         except Exception:
             raise IndexError(index)
 
     def __call(self, *index):
         index = self._process_index(index)
         try:
-            return self.subsref({'type': '{}', 'subs': index})
+            return self.subsref({"type": "{}", "subs": index})
         except Exception:
             raise IndexError(index)
 
@@ -91,16 +91,15 @@ class MatlabClass(MatlabType):
         # FIXME: This should not need to call matlab
         try:
             return tuple(
-                self._process_index(i, k+1, len(ind))
-                for k, i in enumerate(ind)
+                self._process_index(i, k + 1, len(ind)) for k, i in enumerate(ind)
             )
         except TypeError:
             pass
-        
+
         from .runtime import Runtime
 
-        if not hasattr(self, '__endfn'):
-            self.__endfn = Runtime.call('str2func', 'end')
+        if not hasattr(self, "__endfn"):
+            self.__endfn = Runtime.call("str2func", "end")
 
         def end():
             return Runtime.call(self.__endfn, self._as_runtime(), k, n)
@@ -114,7 +113,7 @@ class MatlabClass(MatlabType):
                 index = end() + ind - 1
         elif isinstance(ind, slice):
             if ind.start is None and ind.stop is None and ind.step is None:
-                index = ':'
+                index = ":"
             else:
                 if ind.start is None:
                     start = 1

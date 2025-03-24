@@ -3,26 +3,26 @@ name: Publish Package to PyPI and TestPyPI
 on:
   workflow_dispatch:
   push:
-    paths: 
+    paths:
       - pyproject.toml
 
-jobs: 
+jobs:
   create-tag:
     name: Create tag from new version
     runs-on: "ubuntu-latest"
     permissions:
-      contents: write  
-      id-token: write 
-    outputs: 
-      MPYTHON_VERSION: ${{ steps.getversion.outputs.MPYTHON_VERSION }} 
-    steps: 
+      contents: write
+      id-token: write
+    outputs:
+      MPYTHON_VERSION: ${{ steps.getversion.outputs.MPYTHON_VERSION }}
+    steps:
       - name: Check out package
         uses: actions/checkout@v4
       - name: Get package version
         id: getversion
         run: |
            VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
-           echo "pyproject.toml version: $VERSION" 
+           echo "pyproject.toml version: $VERSION"
            git config user.name github-actions
            git config user.email github-actions@github.com
            MSG=$(git log $(git describe --tags --abbrev=0)..HEAD --oneline)
@@ -31,12 +31,12 @@ jobs:
            git tag -a "$VERSION" -m "$MSG"
            echo "MPYTHON_VERSION=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Publish tags
-        run: git push --tags 
+        run: git push --tags
 
   build:
     name: Build Package
     runs-on: ubuntu-latest
-    needs: 
+    needs:
     - create-tag
     steps:
     - uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
-       
+
   publish-to-pypi:
     name: >-
       Publish Package to PyPI
@@ -109,7 +109,7 @@ jobs:
     - name: Create GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
-      run: | 
+      run: |
         gh release create ${{ needs.create-tag.outputs.MPYTHON_VERSION }} --repo "$GITHUB_REPOSITORY" --notes ""
     - name: Upload artifact signatures to GitHub Release
       env:

@@ -1,10 +1,7 @@
-from .core import (
-    WrappedArray, 
-    _ListishMixin
-)
-from .utils import _copy_if_needed
-
 import numpy as np
+
+from .core import WrappedArray, _ListishMixin
+from .utils import _copy_if_needed
 
 
 class Array(_ListishMixin, WrappedArray):
@@ -31,6 +28,7 @@ class Array(_ListishMixin, WrappedArray):
         `Array` constructor. To ensure that they are interpreted as
         arrays to copy, use `Array.from_any`.
     """
+
     @classmethod
     def _DEFAULT(cls, n: list = ()) -> int:
         return 0
@@ -178,16 +176,19 @@ class Array(_ListishMixin, WrappedArray):
         array : Array
             Converted array.
         """
-        from .cell import Cell # FIXME: avoid circular import
+        from .cell import Cell  # FIXME: avoid circular import
 
         if not isinstance(other, Cell):
             raise TypeError(f"Expected a {Cell} but got a {type(other)}")
         order = kwargs.get("order", None)
         if order in (None, "K", "A"):
             order = (
-                "F" if other.flags.f_contiguous else
-                "C" if other.flags.c_contiguous else
-                order)
+                "F"
+                if other.flags.f_contiguous
+                else "C"
+                if other.flags.c_contiguous
+                else order
+            )
             kwargs["order"] = order
         return cls.from_any(other.tolist(), **kwargs)
 

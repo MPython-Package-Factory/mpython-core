@@ -9,7 +9,7 @@ description = "Core Python elements for wrapped MPython packages."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-  {name = "Johan Medrano", email = "johan.medrano@ucl.ac.uk"}, 
+  {name = "Johan Medrano", email = "johan.medrano@ucl.ac.uk"},
   {name = "Yael Balbastre", email = "y.balbastre@ucl.ac.uk"}]
 requires-python = ">=3.9,<3.13"
 classifiers = [

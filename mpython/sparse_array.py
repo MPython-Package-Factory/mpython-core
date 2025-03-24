@@ -1,17 +1,13 @@
-from .core import (
-    AnyWrappedArray, 
-    _SparseMixin
-)
-from .utils import (
-    _spcopy_if_needed,
-    sparse
-)
-from .array import Array
-
-import numpy as np
 import warnings
 
+import numpy as np
+
+from .array import Array
+from .core import AnyWrappedArray, _SparseMixin
+from .utils import _spcopy_if_needed, sparse
+
 if sparse:
+
     class WrappedSparseArray(sparse.sparray, AnyWrappedArray):
         """Base class for sparse arrays."""
 
@@ -47,7 +43,7 @@ if sparse:
             mode, arg, kwargs = self._parse_args(*args, **kwargs)
             if mode == "shape":
                 ndim = len(arg)
-                return super().__init__(([], [[]]*ndim), shape=arg, **kwargs)
+                return super().__init__(([], [[]] * ndim), shape=arg, **kwargs)
             else:
                 if not isinstance(arg, (np.ndarray, sparse.sparray)):
                     arg = np.asanyarray(arg)
@@ -205,4 +201,3 @@ else:
             obj = cls.from_shape(shape, dtype=dtype)
             obj[tuple(indices)] = values
             return obj
-

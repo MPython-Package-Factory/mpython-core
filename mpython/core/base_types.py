@@ -1,11 +1,11 @@
-from ..utils import (
-    _matlab_array_types,
-    _import_matlab,
-) 
 from functools import partial
+
 import numpy as np
 
-class MatlabType(object):
+from ..utils import _import_matlab, _matlab_array_types
+
+
+class MatlabType:
     """Generic type for objects that have an exact matlab equivalent."""
 
     @classmethod
@@ -16,16 +16,16 @@ class MatlabType(object):
 
         !!! warning "Conversion is performed in-place when possible."
         """
-         # FIXME: Circular import
-        from .delayed_types import AnyDelayedArray
-
-         # FIXME: Circular import
-        from ..cell import Cell
+        # FIXME: Circular import
         from ..array import Array
-        from ..matlab_function import MatlabFunction
+
+        # FIXME: Circular import
+        from ..cell import Cell
         from ..matlab_class import MatlabClass
-        from ..struct import Struct
+        from ..matlab_function import MatlabFunction
         from ..sparse_array import SparseArray
+        from ..struct import Struct
+        from .delayed_types import AnyDelayedArray
 
         # Conversion rules:
         # - we do not convert to matlab's own array types
@@ -80,10 +80,7 @@ class MatlabType(object):
                     raise ValueError("Don't know what to do with type", type__)
 
             else:
-                other = type(other)(
-                    zip(other.keys(),
-                        map(_from_any, other.values()))
-                )
+                other = type(other)(zip(other.keys(), map(_from_any, other.values())))
                 return Struct.from_any(other)
 
         if isinstance(other, (list, tuple, set)):
@@ -121,9 +118,7 @@ class MatlabType(object):
             # Iterable -> let's try to make it a cell
             return cls.from_any(list(other), _from_runtime=_from_runtime)
 
-        raise TypeError(
-            f"Cannot convert {type(other)} into a matlab object."
-        )
+        raise TypeError(f"Cannot convert {type(other)} into a matlab object.")
 
     @classmethod
     def _from_runtime(cls, obj):
@@ -135,7 +130,7 @@ class MatlabType(object):
         Convert object to representation that the matlab runtime understands.
         """
         to_runtime = cls._to_runtime
-        from ..utils import sparse # FIXME: Circular import
+        from ..utils import sparse  # FIXME: Circular import
 
         if isinstance(obj, MatlabType):
             # class / structarray / cell
@@ -160,6 +155,7 @@ class MatlabType(object):
 
         elif sparse and isinstance(obj, sparse.sparray):
             from .SparseArray import SparseArray
+
             return SparseArray.from_any(obj)._as_runtime()
 
         else:
@@ -182,25 +178,20 @@ class MatlabType(object):
         # FIXME: Or just keep `_as_matlab_object` and remove `_as_runtime`?
         return self._as_runtime()
 
+
 class AnyMatlabArray(MatlabType):
     """Base class for all matlab-like arrays (numeric, cell, struct)."""
 
     @property
     def as_num(self):
-        raise TypeError(
-            f"Cannot interpret a {type(self).__name__} as a numeric array"
-        )
+        raise TypeError(f"Cannot interpret a {type(self).__name__} as a numeric array")
 
     @property
     def as_cell(self):
-        raise TypeError(
-            f"Cannot interpret a {type(self).__name__} as a cell"
-        )
+        raise TypeError(f"Cannot interpret a {type(self).__name__} as a cell")
 
     @property
     def as_struct(self):
-        raise TypeError(
-            f"Cannot interpret a {type(self).__name__} as a struct"
-        )
+        raise TypeError(f"Cannot interpret a {type(self).__name__} as a struct")
 
     # TODO: `as_obj` for object arrays?

@@ -1,15 +1,7 @@
-from .core import (
-    WrappedArray,
-    _DictMixin,
-    MatlabType,
-    DelayedStruct
-)
-from .utils import (
-    _copy_if_needed, 
-    _empty_array
-)
-
 import numpy as np
+
+from .core import DelayedStruct, MatlabType, WrappedArray, _DictMixin
+from .utils import _copy_if_needed, _empty_array
 
 
 class Struct(_DictMixin, WrappedArray):
@@ -91,8 +83,7 @@ class Struct(_DictMixin, WrappedArray):
 
         data = np.empty(shape, dtype=dict)
         opt = dict(
-            flags=['refs_ok', 'zerosize_ok'],
-            op_flags=['writeonly', 'no_broadcast']
+            flags=["refs_ok", "zerosize_ok"], op_flags=["writeonly", "no_broadcast"]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
@@ -101,7 +92,7 @@ class Struct(_DictMixin, WrappedArray):
 
     def _fill_default(self):
         arr = np.ndarray.view(self, np.ndarray)
-        flags = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readwrite'])
+        flags = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readwrite"])
         with np.nditer(arr, **flags) as iter:
             for elem in iter:
                 elem[()] = dict()
@@ -128,32 +119,31 @@ class Struct(_DictMixin, WrappedArray):
         data = np.ndarray.view(self, np.ndarray)
         data = np.reshape(data, [-1], order="F")
         data = MatlabType._to_runtime(data)
-        return dict(type__='structarray', size__=size, data__=data)
+        return dict(type__="structarray", size__=size, data__=data)
 
     @classmethod
     def _from_runtime(cls, objdict: dict) -> "Struct":
-        if objdict['type__'] != 'structarray':
-            raise TypeError('objdict is not a structarray')
-        size = np.array(objdict['size__'], dtype=np.uint64).ravel()
+        if objdict["type__"] != "structarray":
+            raise TypeError("objdict is not a structarray")
+        size = np.array(objdict["size__"], dtype=np.uint64).ravel()
         if len(size) == 2 and size[0] == 1:
             # NOTE: should not be needed for Cell, as this should
             # have been taken care of by MPython, but I am keeping it
             # here for symmetry with Array and Struct.
             size = size[1:]
-        data = np.array(objdict['data__'], dtype=object)
+        data = np.array(objdict["data__"], dtype=object)
         data = data.reshape(size)
         try:
             obj = data.view(cls)
         except Exception:
             raise RuntimeError(
-                f'Failed to construct Struct data:\n'
-                f'  data={data}\n'
-                f'  objdict={objdict}'
+                f"Failed to construct Struct data:\n  data={data}\n  objdict={objdict}"
             )
 
         # recurse
-        opt = dict(flags=['refs_ok', 'zerosize_ok'],
-                   op_flags=['readonly', 'no_broadcast'])
+        opt = dict(
+            flags=["refs_ok", "zerosize_ok"], op_flags=["readonly", "no_broadcast"]
+        )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
                 item = elem.item()
@@ -241,7 +231,7 @@ class Struct(_DictMixin, WrappedArray):
 
         # check all items are dictionaries
         arr = np.ndarray.view(other, np.ndarray)
-        opt = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readonly'])
+        opt = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readonly"])
         with np.nditer(arr, **opt) as iter:
             if not all(isinstance(elem.item(), dict) for elem in iter):
                 raise TypeError("Not an array of dictionaries")
@@ -259,7 +249,7 @@ class Struct(_DictMixin, WrappedArray):
             other[...] = tmp
 
         # nested from_any
-        opt = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readonly'])
+        opt = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readonly"])
         with np.nditer(other, **opt) as iter:
             for elem in iter:
                 item: dict = elem.item()
@@ -272,6 +262,7 @@ class Struct(_DictMixin, WrappedArray):
     def from_cell(cls, other, **kwargs) -> "Struct":
         """See `from_any`."""
         from .cell import Cell
+
         if not isinstance(other, Cell):
             raise TypeError(f"Expected a {Cell} but got a {type(other)}.")
         return cls.from_any(other, **kwargs)
@@ -285,7 +276,7 @@ class Struct(_DictMixin, WrappedArray):
         # them to lists, and recurse.
         rebuild = False
         arr = np.ndarray.view(other, np.ndarray)
-        flags = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readwrite'])
+        flags = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readwrite"])
         with np.nditer(arr, **flags) as iter:
             for elem in iter:
                 item = elem.item()
@@ -343,7 +334,7 @@ class Struct(_DictMixin, WrappedArray):
         elif isinstance(keys, str):
             keys = [keys]
 
-        opt = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readwrite'])
+        opt = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readwrite"])
         asdict = {key: [] for key in keys}
 
         with np.nditer(arr, **opt) as iter:
@@ -353,18 +344,19 @@ class Struct(_DictMixin, WrappedArray):
                     asdict[key].append(item[key])
 
         from .cell import Cell
+
         for key in keys:
             asdict[key] = Cell.from_any(asdict[key])
 
         raise ValueError(keys)
         return asdict
-    
+
     def _allkeys(self):
         # Return all keys present across all elements.
         # Keys are ordered by (1) element (2) within-element order
         mock = {}
         arr = np.ndarray.view(self, np.ndarray)
-        opt = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readonly'])
+        opt = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readonly"])
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
                 mock.update({key: None for key in elem.item().keys()})
@@ -388,7 +380,7 @@ class Struct(_DictMixin, WrappedArray):
         elif isinstance(keys, str):
             keys = [keys]
 
-        opt = dict(flags=['refs_ok', 'zerosize_ok'], op_flags=['readonly'])
+        opt = dict(flags=["refs_ok", "zerosize_ok"], op_flags=["readonly"])
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
                 item: dict = elem.item()
@@ -443,8 +435,9 @@ class Struct(_DictMixin, WrappedArray):
         # Hide public numpy attributes
         asnumpy = np.ndarray.view(self, np.ndarray)
         if (
-            hasattr(asnumpy, key) and key[:1] != "_" and
-            key not in type(self)._NDARRAY_ATTRS
+            hasattr(asnumpy, key)
+            and key[:1] != "_"
+            and key not in type(self)._NDARRAY_ATTRS
         ):
             raise AttributeError(f"hide numpy.ndarray.{key}")
         return super().__getattribute__(key)
@@ -478,4 +471,3 @@ class Struct(_DictMixin, WrappedArray):
             return _DictMixin.__delitem__(self, key)
         except KeyError as e:
             raise AttributeError(str(e))
-

@@ -13,7 +13,7 @@ class Runtime:
     def instance():
         if Runtime._instance is None:
             if Runtime.verbose:
-                print('Initializing Matlab Runtime...')
+                print("Initializing Matlab Runtime...")
             Runtime._import_initialize()
             Runtime._instance = Runtime._initialize()
         return Runtime._instance
@@ -44,6 +44,7 @@ class Runtime:
             return
         try:
             from spm._spm import initialize
+
             Runtime._initialize = initialize
         except ImportError as e:
             # ~~~ UNUSED ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,7 +58,7 @@ class Runtime:
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             print(Runtime._help)
             raise e
-        
+
         # Make sure matlab is imported
         _import_matlab()
 
@@ -69,4 +70,3 @@ class Runtime:
     If the issue persists, please open an issue with the entire error
     message at https://github.com/spm/spm-python/issues.
     """
-
