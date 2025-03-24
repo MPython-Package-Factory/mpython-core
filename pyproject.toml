@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mpython-core"
-version = "25.04alpha1.dev11"
+version = "25.04alpha2"
 description = "Core Python elements for wrapped MPython packages."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
   {name = "Johan Medrano", email = "johan.medrano@ucl.ac.uk"},
   {name = "Yael Balbastre", email = "y.balbastre@ucl.ac.uk"}]
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.9,<3.14"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
