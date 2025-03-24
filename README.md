@@ -6,6 +6,10 @@
 
 # MPython Core
 
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mpython-core)
+![PyPI - License](https://img.shields.io/pypi/l/mpython-core)
+![PyPI - Version](https://img.shields.io/pypi/v/mpython-core)
+
 MPython Core provides Python bindings for MATLAB projects, enabling seamless integration of MATLAB functionalities into Python workflows. This package is designed to facilitate the creation of bindings for MATLAB projects, allowing users to interact with MATLAB objects, functions, and arrays directly from Python.
 
 ## Features
