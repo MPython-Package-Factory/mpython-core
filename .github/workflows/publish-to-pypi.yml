@@ -16,9 +16,6 @@ jobs:
     steps: 
       - name: Check out package
         uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-        
       - name: Get package version
         run: |
            VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
@@ -29,7 +26,6 @@ jobs:
            echo "Creating tag $VERSION with message:"
            echo "$MSG"
            git tag -a "$VERSION" -m "$MSG"
-           
       - name: Publish tags
         run: git push --tags 
 
