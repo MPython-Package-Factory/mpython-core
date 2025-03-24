@@ -19,6 +19,7 @@ jobs:
       - name: Check out package
         uses: actions/checkout@v4
       - name: Get package version
+        id: getversion
         run: |
            VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
            echo "pyproject.toml version: $VERSION" 
