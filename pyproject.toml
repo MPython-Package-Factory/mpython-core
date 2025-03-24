@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mpython-wrapper"
+version = "25.04alpha1"
+description = "Python bindings for the SPM software."
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Johan Medrano", email = "johan.medrano@ucl.ac.uk"}, 
+  {name = "Yael Balbastre", email = "y.balbastre@ucl.ac.uk"}]
+requires-python = ">=3.9,<3.13"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "numpy"
+]
+
+[project.urls]
+Repository = "https://github.com/MPython-Package-Factory/mpython-wrapper"
+
+[tool.setuptools.packages]
+find = {}
