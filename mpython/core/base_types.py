@@ -45,7 +45,15 @@ class MatlabType:
             if "type__" in other:
                 type__ = other["type__"]
 
-                if type__ == "structarray":
+                if type__ == "none":
+                    # MPython returns this when catching a function
+                    # that should return no values but is asked for one.
+                    return None
+
+                elif type__ == "emptystruct":
+                    return Struct([])
+
+                elif type__ == "structarray":
                     # MPython returns a list of dictionaries in data__
                     # and the array shape in size__.
                     return Struct._from_runtime(other)
