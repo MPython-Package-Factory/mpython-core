@@ -61,8 +61,13 @@ class _SparseMixin:
     """Methods common to the scipy.sparse and dense backends."""
 
     def _as_runtime(self) -> dict:
+        # NOTE: self[self.nonzero()] sometimes return a sparse array
+        #       (when self is entirely zeros?). We must therefore
+        #       explictly convert `values` to a (dense) numpy array.
         indices = self.nonzero()
-        values = self[indices].reshape([-1, 1])
+        values = self[indices].reshape([-1, 1]).astype(np.double)
+        if hasattr(values, 'todense'):
+            values = values.todense()
         indices = np.stack(indices, -1)
         indices += 1
         size = np.array([[*np.shape(self)]])
@@ -75,13 +80,20 @@ class _SparseMixin:
 
     @classmethod
     def _from_runtime(cls, dictobj: dict):
+        # NOTE: If there is a single nonzero value, it is passed as a
+        # scalar float, rather than a matlab.double.
         if dictobj["type__"] != "sparse":
             raise ValueError("Not a matlab sparse matrix")
         size = np.array(dictobj["size__"], dtype=np.uint64).ravel()
         size = size.tolist()
-        dtype = _matlab_array_types()[type(dictobj["values__"])]
+        if isinstance(dictobj["values__"], float):
+            dtype = np.double
+        else:
+            dtype = _matlab_array_types()[type(dictobj["values__"])]
         indices = np.asarray(dictobj["indices__"], dtype=np.long) - 1
         values = np.asarray(dictobj["values__"], dtype=dtype).ravel()
+        if indices.size == 0:
+            indices = indices.reshape([0, len(size)])
         return cls.from_coo(values, indices.T, size)
 
 
