@@ -115,6 +115,9 @@ class Struct(_DictMixin, WrappedArray):
             data = MatlabType._to_runtime(data)
             return data
 
+        if np.ndarray.view(self, np.ndarray).size == 0:
+            return dict(type__="emptystruct")
+
         size = np.array([[*np.shape(self)]])
         data = np.ndarray.view(self, np.ndarray)
         data = np.reshape(data, [-1], order="F")
