@@ -86,14 +86,28 @@ class _SparseMixin:
             raise ValueError("Not a matlab sparse matrix")
         size = np.array(dictobj["size__"], dtype=np.uint64).ravel()
         size = size.tolist()
+        ndim = len(size)
         if isinstance(dictobj["values__"], float):
             dtype = np.double
         else:
             dtype = _matlab_array_types()[type(dictobj["values__"])]
-        indices = np.asarray(dictobj["indices__"], dtype=np.long) - 1
+        indices = np.asarray(dictobj["indices__"], dtype=np.long)
+        # print('from_matlab', indices.shape)
         values = np.asarray(dictobj["values__"], dtype=dtype).ravel()
+        # indices = indices.reshape([ndim, -1])
+        indices -= 1
         if indices.size == 0:
-            indices = indices.reshape([0, len(size)])
+            indices = indices.reshape([0, ndim])
+        elif indices.shape[0] == 1:
+            # NOTE: I've encountered this issue while runngin the PEB
+            # tutorial, but it is difficult to find a minimal example.
+            # It seems that for some reason, find() has returned row vectors
+            # instead of column vectors, so [ii, jj] generates a long row
+            # vector. When this is detected, I properly unfold the data,
+            # but this should probably be fixed in mpython_endpoint
+            # as well.
+            indices = indices.reshape([ndim, -1]).T
+        # print(indices)
         return cls.from_coo(values, indices.T, size)
 
 
