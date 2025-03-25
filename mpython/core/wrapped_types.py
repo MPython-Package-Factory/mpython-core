@@ -245,8 +245,10 @@ class WrappedArray(np.ndarray, AnyWrappedArray):
                 step = next_index.step or 1
                 start = next_index.start
                 stop = next_index.stop
-                start = next_shape + start if start < 0 else start
-                stop = next_shape + stop if stop < 0 else stop
+                if start is not None:
+                    start = next_shape + start if start < 0 else start
+                if stop is not None:
+                    stop = next_shape + stop if stop < 0 else stop
                 if step < 0:
                     max_index = start
                 else:
