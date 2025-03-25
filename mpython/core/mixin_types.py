@@ -92,9 +92,7 @@ class _SparseMixin:
         else:
             dtype = _matlab_array_types()[type(dictobj["values__"])]
         indices = np.asarray(dictobj["indices__"], dtype=np.long)
-        # print('from_matlab', indices.shape)
         values = np.asarray(dictobj["values__"], dtype=dtype).ravel()
-        # indices = indices.reshape([ndim, -1])
         indices -= 1
         if indices.size == 0:
             indices = indices.reshape([0, ndim])
@@ -107,7 +105,6 @@ class _SparseMixin:
             # but this should probably be fixed in mpython_endpoint
             # as well.
             indices = indices.reshape([ndim, -1]).T
-        # print(indices)
         return cls.from_coo(values, indices.T, size)
 
 
