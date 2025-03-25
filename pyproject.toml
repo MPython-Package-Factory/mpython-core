@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mpython-core"
-version = "25.04alpha2.post1"
+version = "25.04alpha2.post2"
 description = "Core Python elements for wrapped MPython packages."
 readme = "README.md"
 license = {file = "LICENSE"}
