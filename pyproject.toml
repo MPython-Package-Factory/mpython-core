@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mpython-core"
-version = "25.04alpha2.post2"
+dynamic = ["version"]
 description = "Core Python elements for wrapped MPython packages."
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -23,6 +23,9 @@ classifiers = [
 dependencies = [
     "numpy"
 ]
+
+[tool.setuptools.dynamic]
+version = {attr = "mpython._version.__version__"}
 
 [project.urls]
 Repository = "https://github.com/MPython-Package-Factory/mpython-core"

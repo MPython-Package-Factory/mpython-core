@@ -5,6 +5,7 @@ from .matlab_function import MatlabFunction
 from .runtime import Runtime
 from .sparse_array import SparseArray
 from .struct import Struct
+from ._version import __version__
 
 __all__ = [
     "Runtime",
@@ -14,6 +15,7 @@ __all__ = [
     "Struct",
     "Array",
     "SparseArray",
+    "__version__",
 ]
 
 # ----------------------------------------------------------------------
