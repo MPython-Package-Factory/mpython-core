@@ -30,7 +30,7 @@ pip install mpython-core
 
 ## Requirements
 
-- Python 3.9 - 3.12
+- Python 3.9 - 3.13
 - MATLAB Runtime (if MATLAB is not installed)
 - NumPy
 - Optional: SciPy (for sparse matrix support)
