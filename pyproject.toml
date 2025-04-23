@@ -7,6 +7,7 @@ name = "mpython-core"
 dynamic = ["version"]
 description = "Core Python elements for wrapped MPython packages."
 readme = "README.md"
+
 license = {file = "LICENSE"}
 authors = [
   {name = "Johan Medrano", email = "johan.medrano@ucl.ac.uk"},
@@ -36,6 +37,7 @@ version = {attr = "mpython._version.__version__"}
 
 [project.urls]
 Repository = "https://github.com/MPython-Package-Factory/mpython-core"
+Homepage = "https://github.com/MPython-Package-Factory/mpython-core"
 
 [tool.setuptools.packages]
 find = {}
