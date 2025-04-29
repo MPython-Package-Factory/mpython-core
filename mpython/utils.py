@@ -1,3 +1,5 @@
+import importlib
+
 import numpy as np
 
 # If scipy is available, convert matlab sparse matrices scipy.sparse
@@ -12,8 +14,87 @@ except (ImportError, ModuleNotFoundError):
 # ----------------------------------------------------------------------
 
 
-# We'll complain later if the runtime is not instantiated
+class DelayedImportElement:
+
+    class MarkAsImported:
+        def __init__(self, obj):
+            self.obj = obj
+
+    def __init__(self, name, import_path=None):
+        self.name = name
+        self.import_path = import_path
+
+    def _import(self):
+        assert self.import_path
+        import_path = self.import_path
+        try:
+            var = importlib.import_module(import_path)
+        except ModuleNotFoundError as e:
+            try:
+                *import_path, var = import_path.split('.')
+                import_path = '.'.join(import_path)
+                mod = importlib.import_module(import_path)
+                var = getattr(mod, var)
+            except (ModuleNotFoundError, AttributeError):
+                raise e
+        return var
+
+    def __get__(self, instance, owner):
+        print("__get__", self.name)
+        assert instance is None
+        imported = self.MarkAsImported(self._import())
+        setattr(owner, self.name, imported)
+        return imported
+
+    def __set__(self, instance, value):
+        print("__set__", self.name)
+        if isinstance(value, self.MarkAsImported):
+            delattr(instance, self.name)
+            setattr(instance, self.name, value.obj)
+        else:
+            self.import_path = value
+
+
+class DelayedImport:
+    """A utility to delay the import of modules or variables.
+
+    Until they are imported, import paths are wrapped in a
+    `DelayedImportElement` object. The first time an element is accessed,
+    it triggers the underlying import and assign the imported module or
+    object into the `DelayedImport` child class, while getting rid
+    of the `DelayedImportElement` wrapper. Thereby, the next time the
+    element is accessed, the module is directly obtained. This strategy
+    minimizes overhead on subsequent calls (no need to test whether
+    the module has already been imported or not).
+
+    Example
+    -------
+    ```python
+    # module_with_definitions.py
+    class _imports(DelayedImport):
+        Array = 'mpython.array.Array'
+        Cell = 'mpython.cell.Cell'
+
+    def foo():
+        Array = _imports.Array
+        Cell = _imports.Cell
+    ```
+    """
+    def __init_subclass__(cls):
+        for key, val in cls.__dict__.items():
+            if key.startswith("__"):
+                continue
+            setattr(cls, key, DelayedImportElement(key, val))
+
+
 def _import_matlab():
+    """
+    Delayed matlab import.
+
+    This allows to only complain about the lack of a runtime if we
+    really use the runtime. Note that most of the MPython types to
+    not need the runtime.
+    """
     try:
         import matlab
     except (ImportError, ModuleNotFoundError):

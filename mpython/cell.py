@@ -1,9 +1,9 @@
 import numpy as np
 
-from .core import AnyDelayedArray, DelayedCell, MatlabType, WrappedArray, _ListMixin
-from .utils import _copy_if_needed, _empty_array, _import_matlab, _matlab_array_types
-
-global matlab
+from .core import (
+    AnyDelayedArray, DelayedCell, MatlabType, WrappedArray, _ListMixin
+)
+from .utils import _copy_if_needed, _empty_array, _matlab_array_types
 
 
 class Cell(_ListMixin, WrappedArray):
@@ -67,7 +67,8 @@ class Cell(_ListMixin, WrappedArray):
     def _DEFAULT(cls, shape: list = ()) -> np.ndarray:
         data = np.empty(shape, dtype=object)
         opt = dict(
-            flags=["refs_ok", "zerosize_ok"], op_flags=["writeonly", "no_broadcast"]
+            flags=["refs_ok", "zerosize_ok"],
+            op_flags=["writeonly", "no_broadcast"]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
@@ -77,7 +78,8 @@ class Cell(_ListMixin, WrappedArray):
     def _fill_default(self):
         arr = np.ndarray.view(self, np.ndarray)
         opt = dict(
-            flags=["refs_ok", "zerosize_ok"], op_flags=["writeonly", "no_broadcast"]
+            flags=["refs_ok", "zerosize_ok"],
+            op_flags=["writeonly", "no_broadcast"]
         )
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
@@ -106,7 +108,7 @@ class Cell(_ListMixin, WrappedArray):
             return dict(type__="cell", size__=size, data__=data)
 
     @classmethod
-    def _from_runtime(cls, objdict: dict) -> "Cell":
+    def _from_runtime(cls, objdict: dict, runtime=None) -> "Cell":
         if isinstance(objdict, (list, tuple, set)):
             shape = [len(objdict)]
             objdict = dict(type__="cell", size__=shape, data__=objdict)
@@ -126,16 +128,18 @@ class Cell(_ListMixin, WrappedArray):
             obj = data.view(cls)
         except Exception:
             raise RuntimeError(
-                f"Failed to construct Cell data:\n  data={data}\n  objdict={objdict}"
+                f"Failed to construct Cell data:\n"
+                f"  data={data}\n  objdict={objdict}"
             )
 
         # recurse
         opt = dict(
-            flags=["refs_ok", "zerosize_ok"], op_flags=["readwrite", "no_broadcast"]
+            flags=["refs_ok", "zerosize_ok"],
+            op_flags=["readwrite", "no_broadcast"]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
-                elem[()] = MatlabType._from_runtime(elem.item())
+                elem[()] = MatlabType._from_runtime(elem.item(), runtime)
 
         return obj
 
@@ -217,10 +221,6 @@ class Cell(_ListMixin, WrappedArray):
 
         # recursive shallow conversion
         if not deepcat:
-            # make sure matlab is imported so that we can detect
-            # matlab arrays.
-            _import_matlab()
-
             # This is so list[list] are converted to Cell[Cell] and
             # not to a 2D Cell array.
             def asrecursive(other):
@@ -266,7 +266,8 @@ class Cell(_ListMixin, WrappedArray):
 
         # recurse
         opt = dict(
-            flags=["refs_ok", "zerosize_ok"], op_flags=["readwrite", "no_broadcast"]
+            flags=["refs_ok", "zerosize_ok"],
+            op_flags=["readwrite", "no_broadcast"]
         )
         with np.nditer(other, **opt) as iter:
             for elem in iter:
@@ -286,7 +287,8 @@ class Cell(_ListMixin, WrappedArray):
         rebuild = False
         arr = np.asarray(arr)
         opt = dict(
-            flags=["refs_ok", "zerosize_ok"], op_flags=["readwrite", "no_broadcast"]
+            flags=["refs_ok", "zerosize_ok"],
+            op_flags=["readwrite", "no_broadcast"]
         )
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
