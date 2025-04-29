@@ -1,72 +1,81 @@
+from abc import ABC, abstractmethod
+
 from .core import MatlabType
 from .utils import _import_matlab
 
 
-class Runtime:
-    """Namespace that holds the matlab runtime. All methods are static."""
+class Runtime(ABC):
+    """Namespace that holds the matlab runtime.
 
-    _initialize = None
+    Wrapped packages should implement their own inheriting class
+    and define the `_import` method.
+
+    Example
+    -------
+    ```python
+    class SPMRuntime(Runtime):
+
+        @classmethod
+        def _import_runtime(cls):
+            import spm_runtime
+            return spm_runtime
+    ```
+    """
+
     _instance = None
     verbose = True
 
-    @staticmethod
-    def instance():
-        if Runtime._instance is None:
-            if Runtime.verbose:
+    @classmethod
+    @abstractmethod
+    def _import_runtime(cls):
+        """"""
+        ...
+
+    @classmethod
+    def instance(cls):
+        if cls._instance is None:
+            if cls.verbose:
                 print("Initializing Matlab Runtime...")
-            Runtime._import_initialize()
-            Runtime._instance = Runtime._initialize()
-        return Runtime._instance
+            cls._init_instance()
+        return cls._instance
 
-    @staticmethod
-    def call(fn, *args, **kwargs):
-        (args, kwargs) = Runtime._process_argin(*args, **kwargs)
-        res = Runtime.instance().mpython_endpoint(fn, *args, **kwargs)
-        return Runtime._process_argout(res)
+    @classmethod
+    def call(cls, fn, *args, **kwargs):
+        (args, kwargs) = cls._process_argin(*args, **kwargs)
+        res = cls.instance().mpython_endpoint(fn, *args, **kwargs)
+        return cls._process_argout(res)
 
-    @staticmethod
-    def _process_argin(*args, **kwargs):
+    @classmethod
+    def _process_argin(cls, *args, **kwargs):
         to_runtime = MatlabType._to_runtime
         args = tuple(map(to_runtime, args))
         kwargs = dict(zip(kwargs.keys(), map(to_runtime, kwargs.values())))
         return args, kwargs
 
-    @staticmethod
-    def _process_argout(res):
-        return MatlabType._from_runtime(res)
+    @classmethod
+    def _process_argout(cls, res):
+        return MatlabType._from_runtime(res, _runtime=cls)
 
-    @staticmethod
-    def _import_initialize():
+    @classmethod
+    def _init_instance(cls):
         # NOTE(YB)
         #   I moved the import within a function so that array wrappers
         #   can be imported and used even when matlab is not properly setup.
-        if Runtime._initialize:
+        if cls._instance:
             return
         try:
-            from spm._spm import initialize
-
-            Runtime._initialize = initialize
+            cls._instance = cls._import_runtime()
+            # Make sure matlab is imported
+            _import_matlab()
         except ImportError as e:
-            # ~~~ UNUSED ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            # import os
-            # installer_path = os.path.join(
-            #     os.path.dirname(os.path.abspath(__file__)),
-            #     '_spm',
-            #     'resources',
-            #     'RuntimeInstaller.install'
-            # )
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            print(Runtime._help)
+            print(cls._help)
             raise e
 
-        # Make sure matlab is imported
-        _import_matlab()
-
     _help = """
-    Failed to import spm._spm. This can be due to a failure to find Matlab
-    Runtime. Please verify that Matlab Runtime is installed and its path is set.
-    See https://www.mathworks.com/help/compiler/mcr-path-settings-for-run-time-deployment.html
-    for instructions on how to setup the path.
+    Failed to import package runtime. This can be due to a failure to find the
+    MATLAB Runtime. Please verify that MATLAB Runtime is installed and can be
+    discovered. See https://github.com/balbasty/matlab-runtime for instructions
+    on how to install the MATLAB Runtime.
     If the issue persists, please open an issue with the entire error
-    message at https://github.com/spm/spm-python/issues.
+    message at https://github.com/MPython-Package-Factory/mpython-core/issues.
     """

@@ -1,8 +1,15 @@
 import numpy as np
 
 from ..exceptions import IndexOrKeyOrAttributeError
-from ..utils import _empty_array
+from ..utils import _empty_array, DelayedImport
 from .base_types import AnyMatlabArray
+
+
+class _imports(DelayedImport):
+    Array = 'mpython.array.Array'
+    Cell = 'mpython.cell.Cell'
+    MatlabClass = 'mpython.matlab_class.MatlabClass'
+    Struct = 'mpython.struct.Struct'
 
 
 class AnyDelayedArray(AnyMatlabArray):
@@ -167,7 +174,9 @@ class AnyDelayedArray(AnyMatlabArray):
         if self._future is None:
             self._future = DelayedCell((), self._parent, *self._index)
         if not isinstance(self._future, DelayedCell):
-            raise TypeError(f"{type(self._future)} cannot be interpreted as a Cell")
+            raise TypeError(
+                f"{type(self._future)} cannot be interpreted as a Cell"
+            )
         return self._future
 
     @property
@@ -175,7 +184,9 @@ class AnyDelayedArray(AnyMatlabArray):
         if self._future is None:
             self._future = DelayedStruct((), self._parent, *self._index)
         if not isinstance(self._future, DelayedStruct):
-            raise TypeError(f"{type(self._future)} cannot be interpreted as a Struct")
+            raise TypeError(
+                f"{type(self._future)} cannot be interpreted as a Struct"
+            )
         return self._future
 
     @property
@@ -183,13 +194,17 @@ class AnyDelayedArray(AnyMatlabArray):
         if self._future is None:
             self._future = DelayedArray([0], self._parent, *self._index)
         if not isinstance(self._future, DelayedArray):
-            raise TypeError(f"{type(self._future)} cannot be interpreted as a Array")
+            raise TypeError(
+                f"{type(self._future)} cannot be interpreted as a Array"
+            )
         return self._future
 
     def as_obj(self, obj):
-        from ..matlab_class import MatlabClass
-
-        if self._future is not None and not isinstance(self._future, MatlabClass):
+        MatlabClass = _imports.MatlabClass
+        if (
+            self._future is not None and
+            not isinstance(self._future, MatlabClass)
+        ):
             raise TypeError(
                 f"{type(self._future)} cannot be interpreted as a {type(obj)}"
             )
@@ -208,10 +223,10 @@ class AnyDelayedArray(AnyMatlabArray):
         return self.as_struct[key]
 
     def __setitem__(self, index, value):
-        from ..array import Array
-        from ..cell import Cell
-        from ..matlab_class import MatlabClass
-        from ..struct import Struct
+        Array = _imports.Array
+        Cell = _imports.Cell
+        MatlabClass = _imports.MatlabClass
+        Struct = _imports.Struct
 
         if isinstance(index, str):
             arr = self.as_struct
@@ -219,7 +234,8 @@ class AnyDelayedArray(AnyMatlabArray):
         elif isinstance(value, MatlabClass):
             if index not in (0, -1):
                 raise NotImplementedError(
-                    "Implicit advanced indexing not implemented for", type(value)
+                    "Implicit advanced indexing not implemented for",
+                    type(value)
                 )
             self.as_obj(value)
             return self._finalize()
@@ -307,8 +323,7 @@ class DelayedStruct(WrappedDelayedArray):
         *index : int | str
             Index of the future object in its parent.
         """
-        from ..struct import Struct
-
+        Struct = _imports.Struct
         future = Struct.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)
@@ -332,8 +347,7 @@ class DelayedCell(WrappedDelayedArray):
         *index : int | str
             Index of the future object in its parent.
         """
-        from ..cell import Cell
-
+        Cell = _imports.Cell
         future = Cell.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)
@@ -367,8 +381,7 @@ class DelayedArray(WrappedDelayedArray):
         *index : int | str
             Index of the future object in its parent.
         """
-        from ..array import Array
-
+        Array = _imports.Array
         future = Array.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)
