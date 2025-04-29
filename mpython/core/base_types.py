@@ -12,7 +12,7 @@ class _imports(DelayedImport):
     SparseArray = 'mpython.sparse_array.SparseArray'
     MatlabClass = 'mpython.matlab_class.MatlabClass'
     MatlabFunction = 'mpython.matlab_function.MatlabFunction'
-    AnyDelayedArray = 'mpython.core.delayed_types.MatlabFunction'
+    AnyDelayedArray = 'mpython.core.delayed_types.AnyDelayedArray'
 
 
 class MatlabType:

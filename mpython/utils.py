@@ -92,7 +92,7 @@ def _import_matlab():
     Delayed matlab import.
 
     This allows to only complain about the lack of a runtime if we
-    really use the runtime. Note that most of the MPython types to
+    really use the runtime. Note that most of the MPython types do
     not need the runtime.
     """
     try:
