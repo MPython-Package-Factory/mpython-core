@@ -40,14 +40,12 @@ class DelayedImportElement:
         return var
 
     def __get__(self, instance, owner):
-        print("__get__", self.name)
         assert instance is None
         imported = self.MarkAsImported(self._import())
         setattr(owner, self.name, imported)
         return imported
 
     def __set__(self, instance, value):
-        print("__set__", self.name)
         if isinstance(value, self.MarkAsImported):
             delattr(instance, self.name)
             setattr(instance, self.name, value.obj)
