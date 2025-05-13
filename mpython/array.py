@@ -1,7 +1,11 @@
 import numpy as np
 
 from .core import WrappedArray, _ListishMixin
-from .utils import _copy_if_needed
+from .utils import _copy_if_needed, DelayedImport
+
+
+class _imports(DelayedImport):
+    Cell = 'mpython.cell.Cell'
 
 
 class Array(_ListishMixin, WrappedArray):
@@ -48,7 +52,7 @@ class Array(_ListishMixin, WrappedArray):
         return np.ndarray.view(self, np.ndarray)
 
     @classmethod
-    def _from_runtime(cls, other) -> "Array":
+    def _from_runtime(cls, other, runtime=None) -> "Array":
         other = np.asarray(other)
         if len(other.shape) == 2 and other.shape[0] == 1:
             other = other.squeeze(0)
@@ -176,7 +180,7 @@ class Array(_ListishMixin, WrappedArray):
         array : Array
             Converted array.
         """
-        from .cell import Cell  # FIXME: avoid circular import
+        Cell = _imports.Cell
 
         if not isinstance(other, Cell):
             raise TypeError(f"Expected a {Cell} but got a {type(other)}")

@@ -8,10 +8,15 @@ from collections.abc import (
 
 import numpy as np
 
-from ..utils import _empty_array, _matlab_array_types
+from ..utils import _empty_array, _matlab_array_types, DelayedImport
 from .base_types import MatlabType
 from .delayed_types import AnyDelayedArray
 from .wrapped_types import WrappedArray
+
+
+class _imports(DelayedImport):
+    Cell = 'mpython.cell.Cell'
+    Struct = 'mpython.struct.Struct'
 
 
 class _ListishMixin:
@@ -79,7 +84,7 @@ class _SparseMixin:
         )
 
     @classmethod
-    def _from_runtime(cls, dictobj: dict):
+    def _from_runtime(cls, dictobj: dict, runtime=None):
         # NOTE: If there is a single nonzero value, it is passed as a
         # scalar float, rather than a matlab.double.
         if dictobj["type__"] != "sparse":
@@ -181,7 +186,7 @@ class _ListMixin(_ListishMixin, MutableSequence):
         new_shape[0] *= value
         np.ndarray.resize(self, new_shape, refcheck=False)
         for i in range(1, value):
-            self[i * length : (i + 1) * length] = self[:length]
+            self[i * length:(i + 1) * length] = self[:length]
         return self
 
     # In lists, __contains__ should be treated as meaning "contains this
@@ -272,7 +277,7 @@ class _ListMixin(_ListishMixin, MutableSequence):
         new_shape = list(np.shape(self))
         new_shape[0] += 1
         np.ndarray.resize(self, new_shape, refcheck=False)
-        self[index + 1 :] = self[index:-1]
+        self[index + 1:] = self[index:-1]
         self[index] = obj
 
     def pop(self, index=-1):
@@ -461,10 +466,9 @@ class _DictMixin(MutableMapping):
             #   the delayed struct (`delayed`).
             #
             #   We do not need to use a `DelayedStruct` here.
-
             parent = getattr(self, "_delayed_wrapper", self)
 
-            from ..struct import Struct  # FIXME: circular imports
+            Struct = _imports.Struct
 
             delayed = Struct(self.shape)
             opt = dict(
@@ -494,7 +498,8 @@ class _DictMixin(MutableMapping):
             # in the "deal" array.
             value = value.broadcast_to_struct(self)
             opt = dict(
-                flags=["refs_ok", "zerosize_ok", "multi_index"], op_flags=["readonly"]
+                flags=["refs_ok", "zerosize_ok", "multi_index"],
+                op_flags=["readonly"]
             )
             with np.nditer(arr, **opt) as iter:
                 for elem in iter:
@@ -544,7 +549,7 @@ class _DictMixin(MutableMapping):
                 item.setdefault(key, value)
 
     def update(self, other):
-        from ..struct import Struct  # FIXME: circular imports
+        Struct = _imports.Struct
 
         other = Struct.from_any(other)
         other = np.ndarray.view(other, np.ndarray)
@@ -552,7 +557,8 @@ class _DictMixin(MutableMapping):
 
         arr = np.ndarray.view(self, np.ndarray)
         opt = dict(
-            flags=["refs_ok", "zerosize_ok", "multi_index"], op_flags=["readonly"]
+            flags=["refs_ok", "zerosize_ok", "multi_index"],
+            op_flags=["readonly"]
         )
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
@@ -589,10 +595,9 @@ class _DictMixin(MutableMapping):
             return cls.from_any(arg, **kwargs)
 
         def broadcast_to_struct(self, struct):
-            shape = struct.shape + self.shape[len(struct.shape) :]
+            shape = struct.shape + self.shape[len(struct.shape):]
             return np.broadcast_to(self, shape)
 
         def to_cell(self):
-            from ..cell import Cell  # FIXME: circular imports
-
+            Cell = _imports.Cell
             return np.ndarray.view(self, Cell)

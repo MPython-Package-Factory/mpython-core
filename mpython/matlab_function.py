@@ -6,6 +6,8 @@ class MatlabFunction(MatlabType):
     """
     Wrapper for matlab function handles.
 
+    End users should not have to instantiate such objects themselves.
+
     Example
     -------
     ```python
@@ -14,7 +16,7 @@ class MatlabFunction(MatlabType):
     ```
     """
 
-    def __init__(self, matlab_object):
+    def __init__(self, matlab_object, runtime):
         super().__init__()
 
         matlab = _import_matlab()
@@ -22,21 +24,20 @@ class MatlabFunction(MatlabType):
             raise TypeError("Expected a matlab.object")
 
         self._matlab_object = matlab_object
+        self._runtime = runtime
 
     def _as_runtime(self):
         return self._matlab_object
 
     @classmethod
-    def _from_runtime(cls, other):
-        return cls(other)
+    def _from_runtime(cls, other, runtime):
+        return cls(other, runtime)
 
     @classmethod
-    def from_any(cls, other):
+    def from_any(cls, other, runtime=None):
         if isinstance(other, MatlabFunction):
             return other
-        return cls._from_runtime(other)
+        return cls._from_runtime(other, runtime)
 
     def __call__(self, *args, **kwargs):
-        from .runtime import Runtime
-
-        return Runtime.call(self._matlab_object, *args, **kwargs)
+        return self._runtime.call(self._matlab_object, *args, **kwargs)
