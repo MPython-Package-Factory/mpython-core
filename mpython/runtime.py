@@ -54,7 +54,7 @@ class Runtime(ABC):
 
     @classmethod
     def _process_argout(cls, res):
-        return MatlabType._from_runtime(res, _runtime=cls)
+        return MatlabType._from_runtime(res, cls)
 
     @classmethod
     def _init_instance(cls):

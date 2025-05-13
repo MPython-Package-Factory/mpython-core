@@ -139,8 +139,8 @@ class MatlabType:
         raise TypeError(f"Cannot convert {type(other)} into a matlab object.")
 
     @classmethod
-    def _from_runtime(cls, obj, runtime):
-        return cls.from_any(obj, _runtime=runtime)
+    def _from_runtime(cls, obj, _runtime):
+        return cls.from_any(obj, _runtime=_runtime)
 
     @classmethod
     def _to_runtime(cls, obj):
