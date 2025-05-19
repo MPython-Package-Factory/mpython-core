@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 from .core import DelayedStruct, MatlabType, WrappedArray, _DictMixin
 from .utils import _copy_if_needed, _empty_array
@@ -461,6 +462,14 @@ class Struct(_DictMixin, WrappedArray):
             self._ensure_defaults_are_set()
             return
         try:
+            if key in self._NDARRAY_ATTRS:
+                # SyntaxWarning: overwriting numpy attributes
+                warnings.warn(
+                    f"Field name '{key}' conflicts with an existing numpy attribute in {type(self).__name__}. "
+                    f"To avoid ambiguity, consider using dictionary-style access: {type(self).__name__}['{key}'] instead of dot notation.",
+                    SyntaxWarning,
+                    stacklevel=2,
+                )
             _DictMixin.__setitem__(self, key, value)
             self._ensure_defaults_are_set()
             return
