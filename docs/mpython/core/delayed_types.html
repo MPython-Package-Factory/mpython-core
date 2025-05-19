@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.5">
+<title>mpython.core.delayed_types API documentation</title>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>mpython.core.delayed_types</code></h1>
+</header>
+<section id="section-intro">
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="mpython.core.delayed_types.AnyDelayedArray"><code class="flex name class">
+<span>class <span class="ident">AnyDelayedArray</span></span>
+<span>(</span><span>parent, *index)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AnyDelayedArray(AnyMatlabArray):
+    &#34;&#34;&#34;
+    This is an object that we return when we don&#39;t know how an indexed
+    element will be used yet.
+
+    It decides whether it is a Struct, Cell or Array based on the
+    type of indexing that is used.
+
+    In Matlab:
+
+    * `a(x,y)   = num`  indicates that `a` is a numeric array;
+    * `a(x,y)   = cell` indicates that `a` is a cell array;
+    * `a{x,y}   = any`  indicates that `a` is a cell array;
+    * `a(x,y).f = any`  indicates that `a` is a struct array;
+    * `a.f      = any`  indicates that `a` is a struct.
+
+    These indexing operations can be chained, so in
+    `a(x).b.c{y}.d(z) = 2`:
+
+    * `a`    is a struct array;
+    * `b`    is a struct;
+    * `c`    is a cell;
+    * `c{y}` is a struct
+    * `d`    is a numeric array.
+
+    In Python, there is only one type of indexing (`[]`). This is a problem as
+    we cannot differentiate `a{x}.b = y` — where `a` is a cell that contains
+    a struct — from `a(x).b = y` — where `a` is a struct array.
+
+    One solution may be to abuse the &#34;call&#34; operator `()`, so that it returns a
+    cell. This would work in some situations (`a[x].b = y` is a struct array,
+    whereas `a(x).b = y` is a cell of struct). However, the statement
+    `a(x) = y` (which would correspond to matlab&#39;s `a{x} = y`) is not valid
+    python syntax. Furthermore, it would induce a new problem, as cells could
+    not be differentiated from function handles, in some cases.
+
+    Instead, the use of brackets automatically transforms the object into
+    either:
+
+    * a `Struct` (in all &#34;get&#34; cases, and in the &#34;set&#34; context `a[x] = y`,
+      when `y` is either a `dict` or a `Struct`); or
+    * an `Array` (in the &#34;set&#34; context `a[x] = y`, when `y` is neither a
+      `dict` nor a `Struct`).
+
+    Alternatively, if the user wishes to specify which type the object should
+    take, we implement the properties `as_cell`, `as_struct` and `as_num`.
+
+    Therefore:
+
+    * `a[x,y]             = num`    : `a` is a numeric array;
+    * `a[x,y]             = struct` : `a` is a numeric array;
+    * `a[x,y].f           = any`    : `a` is a struct array;
+    * `a(x,y).f           = any`    : `a` is a cell array containing a struct;
+    * `a.f                = any`    : `a` is a struct.
+
+    And explictly:
+
+    * `a.as_cell[x,y]     = any`    : `a` is a cell array;
+    * `a.as_struct[x,y].f = any`    : `a` is a struct array;
+    * `a.as_cell[x,y].f   = any`    : `a` is a cell array containing a struct;
+    * `a.as_num[x,y]      = num`    : `a` is a numeric array.
+    &#34;&#34;&#34;
+
+    _ATTRIBUTES = (&#34;_parent&#34;, &#34;_index&#34;, &#34;_future&#34;, &#34;_finalized&#34;)
+
+    def __init__(self, parent, *index):
+        &#34;&#34;&#34;
+        Parameters
+        ----------
+        parent : ndarray | dict
+            Reference to the object that will eventually contain
+            this element.
+
+            * If the containing array is a `Cell`, `parent` should be a
+              `ndarray` view of that cell, and `index` should be a
+              [tuple of] int.
+            * If the containing array is a `Struct`, `parent` should be a
+              `dict`, and `index` should be a string.
+        index : str | [tuple of] int
+            Index into the parent where this element will be inserted.
+        &#34;&#34;&#34;
+        super().__init__()
+        self._parent = parent  # reference to parent container
+        self._index = index  # index into parent container
+        self._future = None  # future array
+        self._finalized = False  # whether this array has been finalized
+
+    @property
+    def _final(self):
+        self._finalize()
+        return self._future
+
+    def _finalize(self):
+        if self._finalized:
+            return
+
+        if self._future is None:
+            # FIXME: I am not entirely sure this should ever happen
+            self._future = _empty_array()
+
+        # if future array is wrapped, unwrap it
+        if isinstance(self._future, WrappedDelayedArray):
+            self._future = self._future._future
+            if hasattr(self._future, &#34;_delayed_wrapper&#34;):
+                del self._future._delayed_wrapper
+
+        # set value in parent
+        parent = self._parent
+        for index in self._index[:-1]:
+            parent = parent[index]
+        parent[self._index[-1]] = self._future
+
+        # finalize parent if needed
+        if hasattr(self._parent, &#34;_final&#34;):
+            self._parent = self._parent._final
+
+        self._finalized = True
+
+    def _error_is_not_finalized(self, *args, **kwargs):
+        raise IndexOrKeyOrAttributeError(
+            &#34;This DelayedArray has not been finalized, and you are &#34;
+            &#34;attempting to use it in a way that may break its finalization &#34;
+            &#34;cycle. It most likely means that you are indexing out-of-bounds &#34;
+            &#34;without *setting* the out-of-bound value. &#34;
+            &#34;Correct usage: `a.b(i).c = x` | Incorrect usage: `x = a.b(i).c`.&#34;
+        )
+
+    # Kill all operators
+    __str__ = __repr__ = _error_is_not_finalized
+    __bool__ = __float__ = __int__ = _error_is_not_finalized
+    __ceil__ = __floor__ = __round__ = __trunc__ = _error_is_not_finalized
+    __add__ = __iadd__ = __radd__ = _error_is_not_finalized
+    __sub__ = __isub__ = __rsub__ = _error_is_not_finalized
+    __mul__ = __imul__ = __rmul__ = _error_is_not_finalized
+    __truediv___ = __itruediv___ = __rtruediv___ = _error_is_not_finalized
+    __floordiv___ = __ifloordiv___ = __rfloordiv___ = _error_is_not_finalized
+    __eq__ = __ne__ = _error_is_not_finalized
+    __gt__ = __ge__ = __lt__ = __le__ = _error_is_not_finalized
+    __abs__ = __neg__ = __pos__ = _error_is_not_finalized
+    __pow__ = __ipow__ = __rpow__ = _error_is_not_finalized
+    __mod__ = __imod__ = __rmod__ = _error_is_not_finalized
+    __divmod__ = __idivmod__ = __rdivmod__ = _error_is_not_finalized
+    __contains__ = _error_is_not_finalized
+
+    def __getattribute__(self, name):
+        # Do not allow any attribute to be accessed except for those
+        # explicitly allowed by the AnyDelayedArray class.
+        # This is so no &#34;computation&#34; is peformed on DelayedCell,
+        # DelayedStruct, etc.
+        if name.startswith(&#34;_&#34;):
+            return super().__getattribute__(name)
+        if name not in self.__dict__ and name not in AnyDelayedArray.__dict__:
+            return self._error_is_not_finalized()
+        return super().__getattribute__(name)
+
+    # --- Promise type -------------------------------------------------
+
+    @property
+    def as_cell(self) -&gt; &#34;DelayedCell&#34;:
+        if self._future is None:
+            self._future = DelayedCell((), self._parent, *self._index)
+        if not isinstance(self._future, DelayedCell):
+            raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Cell&#34;)
+        return self._future
+
+    @property
+    def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
+        if self._future is None:
+            self._future = DelayedStruct((), self._parent, *self._index)
+        if not isinstance(self._future, DelayedStruct):
+            raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Struct&#34;)
+        return self._future
+
+    @property
+    def as_num(self) -&gt; &#34;DelayedArray&#34;:
+        if self._future is None:
+            self._future = DelayedArray([0], self._parent, *self._index)
+        if not isinstance(self._future, DelayedArray):
+            raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Array&#34;)
+        return self._future
+
+    def as_obj(self, obj):
+        from ..matlab_class import MatlabClass
+
+        if self._future is not None and not isinstance(self._future, MatlabClass):
+            raise TypeError(
+                f&#34;{type(self._future)} cannot be interpreted as a {type(obj)}&#34;
+            )
+        self._future = obj
+        return self._future
+
+    # --- Guess promised type ------------------------------------------
+
+    def __call__(self, *index):
+        return self.as_cell(*index)
+
+    def __getitem__(self, index):
+        return self.as_struct[index]
+
+    def __getattr__(self, key):
+        return self.as_struct[key]
+
+    def __setitem__(self, index, value):
+        from ..array import Array
+        from ..cell import Cell
+        from ..matlab_class import MatlabClass
+        from ..struct import Struct
+
+        if isinstance(index, str):
+            arr = self.as_struct
+
+        elif isinstance(value, MatlabClass):
+            if index not in (0, -1):
+                raise NotImplementedError(
+                    &#34;Implicit advanced indexing not implemented for&#34;, type(value)
+                )
+            self.as_obj(value)
+            return self._finalize()
+
+        elif isinstance(value, (dict, Struct)):
+            arr = self.as_struct
+        elif isinstance(value, (tuple, list, set, Cell)):
+            arr = self.as_cell
+        elif isinstance(value, (int, float, np.number, Array)):
+            arr = self.as_num
+        elif isinstance(value, np.ndarray):
+            if issubclass(value.dtype.type, np.number):
+                arr = self.as_num
+            else:
+                arr = self.as_cell
+        else:
+            arr = self.as_cell
+
+        arr[index] = value
+        return self._finalize()  # Setter -&gt; we can trigger finalize
+
+    def __setattr__(self, key, value):
+        if key in type(self)._ATTRIBUTES:
+            return super().__setattr__(key, value)
+        self.as_struct[key] = value
+        return self._finalize()  # Setter -&gt; we can trigger finalize</code></pre>
+</details>
+<div class="desc"><p>This is an object that we return when we don't know how an indexed
+element will be used yet.</p>
+<p>It decides whether it is a Struct, Cell or Array based on the
+type of indexing that is used.</p>
+<p>In Matlab:</p>
+<ul>
+<li><code>a(x,y)
+= num</code>
+indicates that <code>a</code> is a numeric array;</li>
+<li><code>a(x,y)
+= cell</code> indicates that <code>a</code> is a cell array;</li>
+<li><code>a{x,y}
+= any</code>
+indicates that <code>a</code> is a cell array;</li>
+<li><code>a(x,y).f = any</code>
+indicates that <code>a</code> is a struct array;</li>
+<li><code>a.f
+= any</code>
+indicates that <code>a</code> is a struct.</li>
+</ul>
+<p>These indexing operations can be chained, so in
+<code>a(x).b.c{y}.d(z) = 2</code>:</p>
+<ul>
+<li><code>a</code>
+is a struct array;</li>
+<li><code>b</code>
+is a struct;</li>
+<li><code>c</code>
+is a cell;</li>
+<li><code>c{y}</code> is a struct</li>
+<li><code>d</code>
+is a numeric array.</li>
+</ul>
+<p>In Python, there is only one type of indexing (<code>[]</code>). This is a problem as
+we cannot differentiate <code>a{x}.b = y</code> — where <code>a</code> is a cell that contains
+a struct — from <code>a(x).b = y</code> — where <code>a</code> is a struct array.</p>
+<p>One solution may be to abuse the "call" operator <code>()</code>, so that it returns a
+cell. This would work in some situations (<code>a[x].b = y</code> is a struct array,
+whereas <code>a(x).b = y</code> is a cell of struct). However, the statement
+<code>a(x) = y</code> (which would correspond to matlab's <code>a{x} = y</code>) is not valid
+python syntax. Furthermore, it would induce a new problem, as cells could
+not be differentiated from function handles, in some cases.</p>
+<p>Instead, the use of brackets automatically transforms the object into
+either:</p>
+<ul>
+<li>a <code>Struct</code> (in all "get" cases, and in the "set" context <code>a[x] = y</code>,
+when <code>y</code> is either a <code>dict</code> or a <code>Struct</code>); or</li>
+<li>an <code>Array</code> (in the "set" context <code>a[x] = y</code>, when <code>y</code> is neither a
+<code>dict</code> nor a <code>Struct</code>).</li>
+</ul>
+<p>Alternatively, if the user wishes to specify which type the object should
+take, we implement the properties <code>as_cell</code>, <code>as_struct</code> and <code>as_num</code>.</p>
+<p>Therefore:</p>
+<ul>
+<li><code>a[x,y]
+= num</code>
+: <code>a</code> is a numeric array;</li>
+<li><code>a[x,y]
+= struct</code> : <code>a</code> is a numeric array;</li>
+<li><code>a[x,y].f
+= any</code>
+: <code>a</code> is a struct array;</li>
+<li><code>a(x,y).f
+= any</code>
+: <code>a</code> is a cell array containing a struct;</li>
+<li><code>a.f
+= any</code>
+: <code>a</code> is a struct.</li>
+</ul>
+<p>And explictly:</p>
+<ul>
+<li><code>a.as_cell[x,y]
+= any</code>
+: <code>a</code> is a cell array;</li>
+<li><code>a.as_struct[x,y].f = any</code>
+: <code>a</code> is a struct array;</li>
+<li><code>a.as_cell[x,y].f
+= any</code>
+: <code>a</code> is a cell array containing a struct;</li>
+<li><code>a.as_num[x,y]
+= num</code>
+: <code>a</code> is a numeric array.</li>
+</ul>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>parent</code></strong> :&ensp;<code>ndarray | dict</code></dt>
+<dd>
+<p>Reference to the object that will eventually contain
+this element.</p>
+<ul>
+<li>If the containing array is a <code>Cell</code>, <code>parent</code> should be a
+<code>ndarray</code> view of that cell, and <code>index</code> should be a
+[tuple of] int.</li>
+<li>If the containing array is a <code>Struct</code>, <code>parent</code> should be a
+<code>dict</code>, and <code>index</code> should be a string.</li>
+</ul>
+</dd>
+<dt><strong><code>index</code></strong> :&ensp;<code>str | [tuple of] int</code></dt>
+<dd>Index into the parent where this element will be inserted.</dd>
+</dl></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="mpython.core.base_types.AnyMatlabArray" href="base_types.html#mpython.core.base_types.AnyMatlabArray">AnyMatlabArray</a></li>
+<li><a title="mpython.core.base_types.MatlabType" href="base_types.html#mpython.core.base_types.MatlabType">MatlabType</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="mpython.core.delayed_types.WrappedDelayedArray" href="#mpython.core.delayed_types.WrappedDelayedArray">WrappedDelayedArray</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="mpython.core.delayed_types.AnyDelayedArray.as_cell"><code class="name">prop <span class="ident">as_cell</span> : <a title="mpython.core.delayed_types.DelayedCell" href="#mpython.core.delayed_types.DelayedCell">DelayedCell</a></code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def as_cell(self) -&gt; &#34;DelayedCell&#34;:
+    if self._future is None:
+        self._future = DelayedCell((), self._parent, *self._index)
+    if not isinstance(self._future, DelayedCell):
+        raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Cell&#34;)
+    return self._future</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="mpython.core.delayed_types.AnyDelayedArray.as_num"><code class="name">prop <span class="ident">as_num</span> : <a title="mpython.core.delayed_types.DelayedArray" href="#mpython.core.delayed_types.DelayedArray">DelayedArray</a></code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def as_num(self) -&gt; &#34;DelayedArray&#34;:
+    if self._future is None:
+        self._future = DelayedArray([0], self._parent, *self._index)
+    if not isinstance(self._future, DelayedArray):
+        raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Array&#34;)
+    return self._future</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="mpython.core.delayed_types.AnyDelayedArray.as_struct"><code class="name">prop <span class="ident">as_struct</span> : <a title="mpython.core.delayed_types.DelayedStruct" href="#mpython.core.delayed_types.DelayedStruct">DelayedStruct</a></code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
+    if self._future is None:
+        self._future = DelayedStruct((), self._parent, *self._index)
+    if not isinstance(self._future, DelayedStruct):
+        raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Struct&#34;)
+    return self._future</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="mpython.core.delayed_types.AnyDelayedArray.as_obj"><code class="name flex">
+<span>def <span class="ident">as_obj</span></span>(<span>self, obj)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def as_obj(self, obj):
+    from ..matlab_class import MatlabClass
+
+    if self._future is not None and not isinstance(self._future, MatlabClass):
+        raise TypeError(
+            f&#34;{type(self._future)} cannot be interpreted as a {type(obj)}&#34;
+        )
+    self._future = obj
+    return self._future</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="mpython.core.base_types.AnyMatlabArray" href="base_types.html#mpython.core.base_types.AnyMatlabArray">AnyMatlabArray</a></b></code>:
+<ul class="hlist">
+<li><code><a title="mpython.core.base_types.AnyMatlabArray.from_any" href="base_types.html#mpython.core.base_types.MatlabType.from_any">from_any</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="mpython.core.delayed_types.DelayedArray"><code class="flex name class">
+<span>class <span class="ident">DelayedArray</span></span>
+<span>(</span><span>shape, parent, *index)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DelayedArray(WrappedDelayedArray):
+    &#34;&#34;&#34;
+    An `Array` that will insert itself in its parent later.
+
+    See `AnyDelayedArray`.
+    &#34;&#34;&#34;
+
+    def __init__(self, shape, parent, *index):
+        &#34;&#34;&#34;
+        Parameters
+        ----------
+        shape : list[int]
+            Shape of the future numeric array.
+        parent : Struct | Cell | AnyDelayedArray
+            Parent object that contains the future object.
+        *index : int | str
+            Index of the future object in its parent.
+        &#34;&#34;&#34;
+        from ..array import Array
+
+        future = Array.from_shape(shape)
+        future._delayed_wrapper = self
+        super().__init__(future, parent, *index)</code></pre>
+</details>
+<div class="desc"><p>An <code>Array</code> that will insert itself in its parent later.</p>
+<p>See <code><a title="mpython.core.delayed_types.AnyDelayedArray" href="#mpython.core.delayed_types.AnyDelayedArray">AnyDelayedArray</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>shape</code></strong> :&ensp;<code>list[int]</code></dt>
+<dd>Shape of the future numeric array.</dd>
+<dt><strong><code>parent</code></strong> :&ensp;<code>Struct | Cell | AnyDelayedArray</code></dt>
+<dd>Parent object that contains the future object.</dd>
+<dt><strong><code>*index</code></strong> :&ensp;<code>int | str</code></dt>
+<dd>Index of the future object in its parent.</dd>
+</dl></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="mpython.core.delayed_types.WrappedDelayedArray" href="#mpython.core.delayed_types.WrappedDelayedArray">WrappedDelayedArray</a></li>
+<li><a title="mpython.core.delayed_types.AnyDelayedArray" href="#mpython.core.delayed_types.AnyDelayedArray">AnyDelayedArray</a></li>
+<li><a title="mpython.core.base_types.AnyMatlabArray" href="base_types.html#mpython.core.base_types.AnyMatlabArray">AnyMatlabArray</a></li>
+<li><a title="mpython.core.base_types.MatlabType" href="base_types.html#mpython.core.base_types.MatlabType">MatlabType</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="mpython.core.delayed_types.WrappedDelayedArray" href="#mpython.core.delayed_types.WrappedDelayedArray">WrappedDelayedArray</a></b></code>:
+<ul class="hlist">
+<li><code><a title="mpython.core.delayed_types.WrappedDelayedArray.from_any" href="base_types.html#mpython.core.base_types.MatlabType.from_any">from_any</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="mpython.core.delayed_types.DelayedCell"><code class="flex name class">
+<span>class <span class="ident">DelayedCell</span></span>
+<span>(</span><span>shape, parent, *index)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DelayedCell(WrappedDelayedArray):
+    &#34;&#34;&#34;
+    A `Cell` that will insert itself in its parent later.
+
+    See `AnyDelayedArray`.
+    &#34;&#34;&#34;
+
+    def __init__(self, shape, parent, *index):
+        &#34;&#34;&#34;
+        Parameters
+        ----------
+        shape : list[int]
+            Shape of the future cell array.
+        parent : Struct | Cell | AnyDelayedArray
+            Parent object that contains the future object.
+        *index : int | str
+            Index of the future object in its parent.
+        &#34;&#34;&#34;
+        from ..cell import Cell
+
+        future = Cell.from_shape(shape)
+        future._delayed_wrapper = self
+        super().__init__(future, parent, *index)
+
+        # Insert delayed arrays instead of the usual defaults
+        opt = dict(
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;, &#34;multi_index&#34;],
+            op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;],
+        )
+        arr = np.ndarray.view(self._future, np.ndarray)
+        with np.nditer(arr, **opt) as iter:
+            for elem in iter:
+                elem[()] = AnyDelayedArray(self, iter.multi_index)</code></pre>
+</details>
+<div class="desc"><p>A <code>Cell</code> that will insert itself in its parent later.</p>
+<p>See <code><a title="mpython.core.delayed_types.AnyDelayedArray" href="#mpython.core.delayed_types.AnyDelayedArray">AnyDelayedArray</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>shape</code></strong> :&ensp;<code>list[int]</code></dt>
+<dd>Shape of the future cell array.</dd>
+<dt><strong><code>parent</code></strong> :&ensp;<code>Struct | Cell | AnyDelayedArray</code></dt>
+<dd>Parent object that contains the future object.</dd>
+<dt><strong><code>*index</code></strong> :&ensp;<code>int | str</code></dt>
+<dd>Index of the future object in its parent.</dd>
+</dl></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="mpython.core.delayed_types.WrappedDelayedArray" href="#mpython.core.delayed_types.WrappedDelayedArray">WrappedDelayedArray</a></li>
+<li><a title="mpython.core.delayed_types.AnyDelayedArray" href="#mpython.core.delayed_types.AnyDelayedArray">AnyDelayedArray</a></li>
+<li><a title="mpython.core.base_types.AnyMatlabArray" href="base_types.html#mpython.core.base_types.AnyMatlabArray">AnyMatlabArray</a></li>
+<li><a title="mpython.core.base_types.MatlabType" href="base_types.html#mpython.core.base_types.MatlabType">MatlabType</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="mpython.core.delayed_types.WrappedDelayedArray" href="#mpython.core.delayed_types.WrappedDelayedArray">WrappedDelayedArray</a></b></code>:
+<ul class="hlist">
+<li><code><a title="mpython.core.delayed_types.WrappedDelayedArray.from_any" href="base_types.html#mpython.core.base_types.MatlabType.from_any">from_any</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="mpython.core.delayed_types.DelayedStruct"><code class="flex name class">
+<span>class <span class="ident">DelayedStruct</span></span>
+<span>(</span><span>shape, parent, *index)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DelayedStruct(WrappedDelayedArray):
+    &#34;&#34;&#34;
+    A `Struct` that will insert itself in its parent later.
+
+    See `AnyDelayedArray`.
+    &#34;&#34;&#34;
+
+    def __init__(self, shape, parent, *index):
+        &#34;&#34;&#34;
+        Parameters
+        ----------
+        shape : list[int]
+            Shape of the future struct array.
+        parent : Struct | Cell | AnyDelayedArray
+            Parent object that contains the future object.
+        *index : int | str
+            Index of the future object in its parent.
+        &#34;&#34;&#34;
+        from ..struct import Struct
+
+        future = Struct.from_shape(shape)
+        future._delayed_wrapper = self
+        super().__init__(future, parent, *index)</code></pre>
+</details>
+<div class="desc"><p>A <code>Struct</code> that will insert itself in its parent later.</p>
+<p>See <code><a title="mpython.core.delayed_types.AnyDelayedArray" href="#mpython.core.delayed_types.AnyDelayedArray">AnyDelayedArray</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>shape</code></strong> :&ensp;<code>list[int]</code></dt>
+<dd>Shape of the future struct array.</dd>
+<dt><strong><code>parent</code></strong> :&ensp;<code>Struct | Cell | AnyDelayedArray</code></dt>
+<dd>Parent object that contains the future object.</dd>
+<dt><strong><code>*index</code></strong> :&ensp;<code>int | str</code></dt>
+<dd>Index of the future object in its parent.</dd>
+</dl></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="mpython.core.delayed_types.WrappedDelayedArray" href="#mpython.core.delayed_types.WrappedDelayedArray">WrappedDelayedArray</a></li>
+<li><a title="mpython.core.delayed_types.AnyDelayedArray" href="#mpython.core.delayed_types.AnyDelayedArray">AnyDelayedArray</a></li>
+<li><a title="mpython.core.base_types.AnyMatlabArray" href="base_types.html#mpython.core.base_types.AnyMatlabArray">AnyMatlabArray</a></li>
+<li><a title="mpython.core.base_types.MatlabType" href="base_types.html#mpython.core.base_types.MatlabType">MatlabType</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="mpython.core.delayed_types.WrappedDelayedArray" href="#mpython.core.delayed_types.WrappedDelayedArray">WrappedDelayedArray</a></b></code>:
+<ul class="hlist">
+<li><code><a title="mpython.core.delayed_types.WrappedDelayedArray.from_any" href="base_types.html#mpython.core.base_types.MatlabType.from_any">from_any</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="mpython.core.delayed_types.WrappedDelayedArray"><code class="flex name class">
+<span>class <span class="ident">WrappedDelayedArray</span></span>
+<span>(</span><span>future, parent, *index)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class WrappedDelayedArray(AnyDelayedArray):
+    &#34;&#34;&#34;
+    Base class for future objects with known type.
+
+    See `DelayedStruct`, `DelayedCell`, `DelayedArray`.
+    &#34;&#34;&#34;
+
+    def __init__(self, future, parent, *index):
+        &#34;&#34;&#34;
+        Parameters
+        ----------
+        future : Struct | Cell | Array
+            Concrete object that will be inserted in the parent later.
+        parent : Struct | Cell | AnyDelayedArray
+            Parent object that contains the future object.
+        *index : int | str
+            Index of the future obect in its parent.
+        &#34;&#34;&#34;
+        super().__init__(parent, *index)
+        self._future = future
+
+    def __call__(self, *index):
+        return self._future.__call__(*index)
+
+    def __getitem__(self, index):
+        return self._future.__getitem__(index)
+
+    def __getattr__(self, key):
+        return self._future.__getattr__(key)
+
+    def __setitem__(self, index, value):
+        self._future.__setitem__(index, value)
+        self._finalize()
+
+    def __setattr__(self, key, value):
+        if key in type(self)._ATTRIBUTES:
+            return super().__setattr__(key, value)
+        self._future.__setattr__(key, value)
+        self._finalize()</code></pre>
+</details>
+<div class="desc"><p>Base class for future objects with known type.</p>
+<p>See <code><a title="mpython.core.delayed_types.DelayedStruct" href="#mpython.core.delayed_types.DelayedStruct">DelayedStruct</a></code>, <code><a title="mpython.core.delayed_types.DelayedCell" href="#mpython.core.delayed_types.DelayedCell">DelayedCell</a></code>, <code><a title="mpython.core.delayed_types.DelayedArray" href="#mpython.core.delayed_types.DelayedArray">DelayedArray</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>future</code></strong> :&ensp;<code>Struct | Cell | Array</code></dt>
+<dd>Concrete object that will be inserted in the parent later.</dd>
+<dt><strong><code>parent</code></strong> :&ensp;<code>Struct | Cell | AnyDelayedArray</code></dt>
+<dd>Parent object that contains the future object.</dd>
+<dt><strong><code>*index</code></strong> :&ensp;<code>int | str</code></dt>
+<dd>Index of the future obect in its parent.</dd>
+</dl></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="mpython.core.delayed_types.AnyDelayedArray" href="#mpython.core.delayed_types.AnyDelayedArray">AnyDelayedArray</a></li>
+<li><a title="mpython.core.base_types.AnyMatlabArray" href="base_types.html#mpython.core.base_types.AnyMatlabArray">AnyMatlabArray</a></li>
+<li><a title="mpython.core.base_types.MatlabType" href="base_types.html#mpython.core.base_types.MatlabType">MatlabType</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="mpython.core.delayed_types.DelayedArray" href="#mpython.core.delayed_types.DelayedArray">DelayedArray</a></li>
+<li><a title="mpython.core.delayed_types.DelayedCell" href="#mpython.core.delayed_types.DelayedCell">DelayedCell</a></li>
+<li><a title="mpython.core.delayed_types.DelayedStruct" href="#mpython.core.delayed_types.DelayedStruct">DelayedStruct</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="mpython.core.delayed_types.AnyDelayedArray" href="#mpython.core.delayed_types.AnyDelayedArray">AnyDelayedArray</a></b></code>:
+<ul class="hlist">
+<li><code><a title="mpython.core.delayed_types.AnyDelayedArray.from_any" href="base_types.html#mpython.core.base_types.MatlabType.from_any">from_any</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="mpython.core" href="index.html">mpython.core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="mpython.core.delayed_types.AnyDelayedArray" href="#mpython.core.delayed_types.AnyDelayedArray">AnyDelayedArray</a></code></h4>
+<ul class="">
+<li><code><a title="mpython.core.delayed_types.AnyDelayedArray.as_cell" href="#mpython.core.delayed_types.AnyDelayedArray.as_cell">as_cell</a></code></li>
+<li><code><a title="mpython.core.delayed_types.AnyDelayedArray.as_num" href="#mpython.core.delayed_types.AnyDelayedArray.as_num">as_num</a></code></li>
+<li><code><a title="mpython.core.delayed_types.AnyDelayedArray.as_obj" href="#mpython.core.delayed_types.AnyDelayedArray.as_obj">as_obj</a></code></li>
+<li><code><a title="mpython.core.delayed_types.AnyDelayedArray.as_struct" href="#mpython.core.delayed_types.AnyDelayedArray.as_struct">as_struct</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="mpython.core.delayed_types.DelayedArray" href="#mpython.core.delayed_types.DelayedArray">DelayedArray</a></code></h4>
+</li>
+<li>
+<h4><code><a title="mpython.core.delayed_types.DelayedCell" href="#mpython.core.delayed_types.DelayedCell">DelayedCell</a></code></h4>
+</li>
+<li>
+<h4><code><a title="mpython.core.delayed_types.DelayedStruct" href="#mpython.core.delayed_types.DelayedStruct">DelayedStruct</a></code></h4>
+</li>
+<li>
+<h4><code><a title="mpython.core.delayed_types.WrappedDelayedArray" href="#mpython.core.delayed_types.WrappedDelayedArray">WrappedDelayedArray</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.5</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.5">
+<title>mpython.core.base_types API documentation</title>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>mpython.core.base_types</code></h1>
+</header>
+<section id="section-intro">
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="mpython.core.base_types.AnyMatlabArray"><code class="flex name class">
+<span>class <span class="ident">AnyMatlabArray</span></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AnyMatlabArray(MatlabType):
+    &#34;&#34;&#34;Base class for all matlab-like arrays (numeric, cell, struct).&#34;&#34;&#34;
+
+    @property
+    def as_num(self):
+        raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a numeric array&#34;)
+
+    @property
+    def as_cell(self):
+        raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a cell&#34;)
+
+    @property
+    def as_struct(self):
+        raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a struct&#34;)
+
+    # TODO: `as_obj` for object arrays?</code></pre>
+</details>
+<div class="desc"><p>Base class for all matlab-like arrays (numeric, cell, struct).</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="mpython.core.base_types.MatlabType" href="#mpython.core.base_types.MatlabType">MatlabType</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="mpython.core.delayed_types.AnyDelayedArray" href="delayed_types.html#mpython.core.delayed_types.AnyDelayedArray">AnyDelayedArray</a></li>
+<li><a title="mpython.core.wrapped_types.AnyWrappedArray" href="wrapped_types.html#mpython.core.wrapped_types.AnyWrappedArray">AnyWrappedArray</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="mpython.core.base_types.AnyMatlabArray.as_cell"><code class="name">prop <span class="ident">as_cell</span></code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def as_cell(self):
+    raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a cell&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="mpython.core.base_types.AnyMatlabArray.as_num"><code class="name">prop <span class="ident">as_num</span></code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def as_num(self):
+    raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a numeric array&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="mpython.core.base_types.AnyMatlabArray.as_struct"><code class="name">prop <span class="ident">as_struct</span></code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def as_struct(self):
+    raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a struct&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="mpython.core.base_types.MatlabType" href="#mpython.core.base_types.MatlabType">MatlabType</a></b></code>:
+<ul class="hlist">
+<li><code><a title="mpython.core.base_types.MatlabType.from_any" href="#mpython.core.base_types.MatlabType.from_any">from_any</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="mpython.core.base_types.MatlabType"><code class="flex name class">
+<span>class <span class="ident">MatlabType</span></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MatlabType:
+    &#34;&#34;&#34;Generic type for objects that have an exact matlab equivalent.&#34;&#34;&#34;
+
+    @classmethod
+    def from_any(cls, other, **kwargs):
+        &#34;&#34;&#34;
+        Convert python/matlab objects to `MatlabType` objects
+        (`Cell`, `Struct`, `Array`, `MatlabClass`).
+
+        !!! warning &#34;Conversion is performed in-place when possible.&#34;
+        &#34;&#34;&#34;
+        # FIXME: Circular import
+        from ..array import Array
+
+        # FIXME: Circular import
+        from ..cell import Cell
+        from ..matlab_class import MatlabClass
+        from ..matlab_function import MatlabFunction
+        from ..sparse_array import SparseArray
+        from ..struct import Struct
+        from .delayed_types import AnyDelayedArray
+
+        # Conversion rules:
+        # - we do not convert to matlab&#39;s own array types
+        #   (`matlab.double`, etc);
+        # - we do not convert to types that can be passed directly to
+        #   the matlab runtime;
+        # - instead, we convert to python types that mimic matlab types.
+        _from_any = partial(cls.from_any, **kwargs)
+        _from_runtime = kwargs.pop(&#34;_from_runtime&#34;, False)
+
+        if isinstance(other, MatlabType):
+            if isinstance(other, AnyDelayedArray):
+                other._error_is_not_finalized()
+            return other
+
+        if isinstance(other, dict):
+            if &#34;type__&#34; in other:
+                type__ = other[&#34;type__&#34;]
+
+                if type__ == &#34;none&#34;:
+                    # MPython returns this when catching a function
+                    # that should return no values but is asked for one.
+                    return None
+
+                elif type__ == &#34;emptystruct&#34;:
+                    return Struct.from_shape([0])
+
+                elif type__ == &#34;structarray&#34;:
+                    # MPython returns a list of dictionaries in data__
+                    # and the array shape in size__.
+                    return Struct._from_runtime(other)
+
+                elif type__ == &#34;cell&#34;:
+                    # MPython returns a list of dictionaries in data__
+                    # and the array shape in size__.
+                    return Cell._from_runtime(other)
+
+                elif type__ == &#34;object&#34;:
+                    # MPython returns the object&#39;s fields serialized
+                    # in a dictionary.
+                    return MatlabClass._from_runtime(other)
+
+                elif type__ == &#34;sparse&#34;:
+                    # MPython returns the coordinates and values in a dict.
+                    return SparseArray._from_runtime(other)
+
+                elif type__ == &#34;char&#34;:
+                    # Character array that is not a row vector
+                    # (row vector are converted to str automatically)
+                    # MPython returns all rows in a (F-ordered) cell in data__
+                    # Let&#39;s use the cell constructor to return a cellstr.
+                    # -&gt; A cellstr is a column vector, not a row vector
+                    size = np.asarray(other[&#34;size__&#34;]).tolist()[0]
+                    size = size[:-1] + [1]
+                    other[&#34;type__&#34;] = &#34;cell&#34;
+                    other[&#34;size__&#34;] = np.asarray([size])
+                    return Cell._from_runtime(other)
+
+                else:
+                    raise ValueError(&#34;Don&#39;t know what to do with type&#34;, type__)
+
+            else:
+                other = type(other)(zip(other.keys(), map(_from_any, other.values())))
+                return Struct.from_any(other)
+
+        if isinstance(other, (list, tuple, set)):
+            # nested tuples are cells of cells, not cell arrays
+            if _from_runtime:
+                return Cell._from_runtime(other)
+            else:
+                return Cell.from_any(other)
+
+        if isinstance(other, (np.ndarray, int, float, complex, bool)):
+            # [array of] numbers -&gt; Array
+            if _from_runtime:
+                return Array._from_runtime(other)
+            else:
+                return Array.from_any(other)
+
+        if isinstance(other, str):
+            return other
+
+        if isinstance(other, bytes):
+            return other.decode()
+
+        if other is None:
+            # This can happen when matlab code is called without `nargout`
+            return other
+
+        matlab = _import_matlab()
+        if matlab and isinstance(other, matlab.object):
+            return MatlabFunction.from_any(other)
+
+        if type(other) in _matlab_array_types():
+            return Array._from_runtime(other)
+
+        if hasattr(other, &#34;__iter__&#34;):
+            # Iterable -&gt; let&#39;s try to make it a cell
+            return cls.from_any(list(other), _from_runtime=_from_runtime)
+
+        raise TypeError(f&#34;Cannot convert {type(other)} into a matlab object.&#34;)
+
+    @classmethod
+    def _from_runtime(cls, obj):
+        return cls.from_any(obj, _from_runtime=True)
+
+    @classmethod
+    def _to_runtime(cls, obj):
+        &#34;&#34;&#34;
+        Convert object to representation that the matlab runtime understands.
+        &#34;&#34;&#34;
+        to_runtime = cls._to_runtime
+        from ..utils import sparse  # FIXME: Circular import
+
+        if isinstance(obj, MatlabType):
+            # class / structarray / cell
+            return obj._as_runtime()
+
+        elif isinstance(obj, (list, tuple, set)):
+            return type(obj)(map(to_runtime, obj))
+
+        elif isinstance(obj, dict):
+            if &#34;type__&#34; in obj:
+                return obj
+            return type(obj)(zip(obj.keys(), map(to_runtime, obj.values())))
+
+        elif isinstance(obj, np.ndarray):
+            obj = np.asarray(obj)
+            if obj.dtype in (object, dict):
+                shape, dtype = obj.shape, obj.dtype
+                obj = np.fromiter(map(to_runtime, obj.flat), dtype=dtype)
+                obj = obj.reshape(shape)
+                return obj.tolist()
+            return obj
+
+        elif sparse and isinstance(obj, sparse.sparray):
+            from .SparseArray import SparseArray
+
+            return SparseArray.from_any(obj)._as_runtime()
+
+        else:
+            # TODO: do we want to raise if the type is not supported by matlab?
+            #
+            # Valid types for matlab bindings:
+            #   - bool, int, float, complex, str, bytes, bytearray
+            #
+            # Valid matlab types that we have already dealt with:
+            #   - list, tuple, set, dict, ndarray
+            #
+            # All other values/types are invalid (including `None`!)
+            return obj
+
+    def _as_runtime(self):
+        raise NotImplementedError
+
+    def _as_matlab_object(self):
+        # Backward compatibility
+        # FIXME: Or just keep `_as_matlab_object` and remove `_as_runtime`?
+        return self._as_runtime()</code></pre>
+</details>
+<div class="desc"><p>Generic type for objects that have an exact matlab equivalent.</p></div>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="mpython.core.base_types.AnyMatlabArray" href="#mpython.core.base_types.AnyMatlabArray">AnyMatlabArray</a></li>
+<li><a title="mpython.matlab_class.MatlabClass" href="../matlab_class.html#mpython.matlab_class.MatlabClass">MatlabClass</a></li>
+<li><a title="mpython.matlab_function.MatlabFunction" href="../matlab_function.html#mpython.matlab_function.MatlabFunction">MatlabFunction</a></li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="mpython.core.base_types.MatlabType.from_any"><code class="name flex">
+<span>def <span class="ident">from_any</span></span>(<span>other, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert python/matlab objects to <code><a title="mpython.core.base_types.MatlabType" href="#mpython.core.base_types.MatlabType">MatlabType</a></code> objects
+(<code>Cell</code>, <code>Struct</code>, <code>Array</code>, <code>MatlabClass</code>).</p>
+<div class="admonition warning">
+<p class="admonition-title">Conversion is performed in-place when possible.</p>
+</div></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="mpython.core" href="index.html">mpython.core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="mpython.core.base_types.AnyMatlabArray" href="#mpython.core.base_types.AnyMatlabArray">AnyMatlabArray</a></code></h4>
+<ul class="">
+<li><code><a title="mpython.core.base_types.AnyMatlabArray.as_cell" href="#mpython.core.base_types.AnyMatlabArray.as_cell">as_cell</a></code></li>
+<li><code><a title="mpython.core.base_types.AnyMatlabArray.as_num" href="#mpython.core.base_types.AnyMatlabArray.as_num">as_num</a></code></li>
+<li><code><a title="mpython.core.base_types.AnyMatlabArray.as_struct" href="#mpython.core.base_types.AnyMatlabArray.as_struct">as_struct</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="mpython.core.base_types.MatlabType" href="#mpython.core.base_types.MatlabType">MatlabType</a></code></h4>
+<ul class="">
+<li><code><a title="mpython.core.base_types.MatlabType.from_any" href="#mpython.core.base_types.MatlabType.from_any">from_any</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.5</a>.</p>
+</footer>
+</body>
+</html>
