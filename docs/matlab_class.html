@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.5">
-<title>mpython.core.mixin_types API documentation</title>
+<meta name="generator" content="pdoc3 0.11.6">
+<title>mpython.matlab_class API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
@@ -33,7 +33,7 @@ el.replaceWith(d);
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>mpython.core.mixin_types</code></h1>
+<h1 class="title">Module <code>mpython.matlab_class</code></h1>
 </header>
 <section id="section-intro">
 </section>
@@ -44,6 +44,172 @@ el.replaceWith(d);
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="mpython.matlab_class.MatlabClass"><code class="flex name class">
+<span>class <span class="ident">MatlabClass</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MatlabClass(MatlabType):
+    _subclasses = dict()
+
+    def __new__(cls, *args, _objdict=None, **kwargs):
+        if _objdict is None:
+            if cls.__name__ in MatlabClass._subclasses.keys():
+                from .runtime import Runtime
+
+                obj = Runtime.call(cls.__name__, *args, **kwargs)
+            else:
+                obj = super().__new__(cls)
+        else:
+            obj = super().__new__(cls)
+            obj._objdict = _objdict
+        return obj
+
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+        if hasattr(cls, &#34;subsref&#34;):
+            cls.__getitem__ = MatlabClass.__getitem
+            cls.__call__ = MatlabClass.__call
+
+        if hasattr(cls, &#34;subsasgn&#34;):
+            cls.__setitem__ = MatlabClass.__setitem
+
+        MatlabClass._subclasses[cls.__name__] = cls
+
+    @classmethod
+    def from_any(cls, other):
+        if isinstance(other, dict) and &#34;type__&#34; in other:
+            return cls._from_runtime(other)
+        if not isinstance(other, cls):
+            raise TypeError(f&#34;Cannot convert {type(other)} to {cls}&#34;)
+        return other
+
+    @classmethod
+    def _from_runtime(cls, objdict):
+        if objdict[&#34;class__&#34;] in MatlabClass._subclasses.keys():
+            obj = MatlabClass._subclasses[objdict[&#34;class__&#34;]](_objdict=objdict)
+        else:
+            warnings.warn(f&#34;Unknown Matlab class type: {objdict[&#39;class__&#39;]}&#34;)
+            obj = MatlabClass(_objdict=objdict)
+        return obj
+
+    def _as_runtime(self):
+        return self._objdict
+
+    def __getattr(self, key):
+        try:
+            return self.subsref({&#34;type&#34;: &#34;.&#34;, &#34;subs&#34;: key})
+        except Exception:
+            raise AttributeError(key)
+
+    def __getitem(self, ind):
+        index = self._process_index(ind)
+        try:
+            return self.subsref({&#34;type&#34;: &#34;()&#34;, &#34;subs&#34;: index})
+        except Exception:
+            ...
+        try:
+            return self.subsref({&#34;type&#34;: &#34;{}&#34;, &#34;subs&#34;: index})
+        except Exception:
+            raise IndexError(index)
+
+    def __setitem(self, ind, value):
+        index = self._process_index(ind)
+        try:
+            return self.subsasgn({&#34;type&#34;: &#34;()&#34;, &#34;subs&#34;: index}, value)
+        except Exception:
+            ...
+        try:
+            return self.subsasgn({&#34;type&#34;: &#34;{}&#34;, &#34;subs&#34;: index}, value)
+        except Exception:
+            raise IndexError(index)
+
+    def __call(self, *index):
+        index = self._process_index(index)
+        try:
+            return self.subsref({&#34;type&#34;: &#34;{}&#34;, &#34;subs&#34;: index})
+        except Exception:
+            raise IndexError(index)
+
+    def _process_index(self, ind, k=1, n=1):
+        # FIXME: This should not need to call matlab
+        try:
+            return tuple(
+                self._process_index(i, k + 1, len(ind)) for k, i in enumerate(ind)
+            )
+        except TypeError:
+            pass
+
+        from .runtime import Runtime
+
+        if not hasattr(self, &#34;__endfn&#34;):
+            self.__endfn = Runtime.call(&#34;str2func&#34;, &#34;end&#34;)
+
+        def end():
+            return Runtime.call(self.__endfn, self._as_runtime(), k, n)
+
+        if isinstance(ind, int):
+            if ind &gt;= 0:
+                index = ind + 1
+            elif ind == -1:
+                index = end()
+            else:
+                index = end() + ind - 1
+        elif isinstance(ind, slice):
+            if ind.start is None and ind.stop is None and ind.step is None:
+                index = &#34;:&#34;
+            else:
+                if ind.start is None:
+                    start = 1
+                elif ind.start &lt; 0:
+                    start = end() + ind.start
+                else:
+                    start = ind.start + 1
+
+                if ind.stop is None:
+                    stop = end()
+                elif ind.stop &lt; 0:
+                    stop = end() + ind.stop
+                else:
+                    stop = ind.stop + 1
+
+                if ind.step is None:
+                    step = 1
+                else:
+                    step = ind.step
+
+                min_ = min(start, stop)
+                max_ = max(start, stop)
+                if step &gt; 0:
+                    index = np.arange(min_, max_, step)
+                else:
+                    index = np.arange(max_, min_, step)
+        else:
+            index = ind
+
+        return index</code></pre>
+</details>
+<div class="desc"><p>Generic type for objects that have an exact matlab equivalent.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="mpython.core.base_types.MatlabType" href="core/base_types.html#mpython.core.base_types.MatlabType">MatlabType</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="mpython.core.base_types.MatlabType" href="core/base_types.html#mpython.core.base_types.MatlabType">MatlabType</a></b></code>:
+<ul class="hlist">
+<li><code><a title="mpython.core.base_types.MatlabType.from_any" href="core/base_types.html#mpython.core.base_types.MatlabType.from_any">from_any</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -53,14 +219,21 @@ el.replaceWith(d);
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="mpython.core" href="index.html">mpython.core</a></code></li>
+<li><code><a title="mpython" href="index.html">mpython</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="mpython.matlab_class.MatlabClass" href="#mpython.matlab_class.MatlabClass">MatlabClass</a></code></h4>
+</li>
 </ul>
 </li>
 </ul>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.5</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>
