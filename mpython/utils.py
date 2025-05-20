@@ -16,10 +16,6 @@ except (ImportError, ModuleNotFoundError):
 
 class DelayedImportElement:
 
-    class MarkAsImported:
-        def __init__(self, obj):
-            self.obj = obj
-
     def __init__(self, name, import_path=None):
         self.name = name
         self.import_path = import_path
@@ -41,16 +37,9 @@ class DelayedImportElement:
 
     def __get__(self, instance, owner):
         assert instance is None
-        imported = self.MarkAsImported(self._import())
+        imported = self._import()
         setattr(owner, self.name, imported)
         return imported
-
-    def __set__(self, instance, value):
-        if isinstance(value, self.MarkAsImported):
-            delattr(instance, self.name)
-            setattr(instance, self.name, value.obj)
-        else:
-            self.import_path = value
 
 
 class DelayedImport:
