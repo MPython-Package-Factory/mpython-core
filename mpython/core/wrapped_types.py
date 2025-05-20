@@ -2,6 +2,12 @@ import numpy as np
 
 from .base_types import AnyMatlabArray, MatlabType
 from .delayed_types import AnyDelayedArray, DelayedCell, DelayedStruct
+from ..utils import DelayedImport
+
+
+class _imports(DelayedImport):
+    Cell = 'mpython.cell.Cell'
+    Struct = 'mpython.struct.Struct'
 
 
 # ----------------------------------------------------------------------
@@ -52,14 +58,16 @@ class AnyWrappedArray(AnyMatlabArray):
         if args and __has_dtype:
             if "dtype" in kwargs:
                 raise TypeError(
-                    f"{cls.__name__}() got multiple values for argument 'dtype'"
+                    f"{cls.__name__}() got multiple values for argument "
+                    f"'dtype'"
                 )
             kwargs["dtype"] = args.pop(0)
         # 2. order {"C", "F"}
         if args and __has_order:
             if "order" in kwargs:
                 raise TypeError(
-                    f"{cls.__name__}() got multiple values for argument 'order'"
+                    f"{cls.__name__}() got multiple values for argument "
+                    f"'order'"
                 )
             kwargs["order"] = args.pop(0)
         # 3. no other positionals allowed -> raise
@@ -106,7 +114,8 @@ class WrappedArray(np.ndarray, AnyWrappedArray):
         # close to np.array_repr, but hides dtype.
         pre = type(self).__name__ + "("
         suf = ")"
-        return pre + np.array2string(self, prefix=pre, suffix=suf, separator=", ") + suf
+        arr = np.array2string(self, prefix=pre, suffix=suf, separator=", ")
+        return pre + arr + suf
 
     def __bool__(self):
         # NumPy arrays do not lower to True/False in a boolean context.
@@ -145,7 +154,9 @@ class WrappedArray(np.ndarray, AnyWrappedArray):
 
     def __delitem__(self, index):
         if isinstance(index, tuple):
-            raise TypeError("Multidimensional indices are not supported in `del`.")
+            raise TypeError(
+                "Multidimensional indices are not supported in `del`."
+            )
 
         # --- list: delete sequentially, from tail to head -------------
         if hasattr(index, "__iter__"):
@@ -204,7 +215,7 @@ class WrappedArray(np.ndarray, AnyWrappedArray):
                 index = len(self) + index
             new_shape = list(np.shape(self))
             new_shape[0] -= 1
-            self[index:-1] = self[index + 1 :]
+            self[index:-1] = self[index + 1:]
             np.ndarray.resize(self, new_shape, refcheck=False)
 
     def _resize_for_index(self, index, set_default=True):
@@ -282,8 +293,8 @@ class WrappedArray(np.ndarray, AnyWrappedArray):
                 arr[scalar_index] = scalar
 
     def _return_delayed(self, index):
-        from ..cell import Cell
-        from ..struct import Struct  # FIXME: avoid circular import
+        Cell = _imports.Cell
+        Struct = _imports.Struct
 
         if not isinstance(index, tuple):
             index = (index,)
