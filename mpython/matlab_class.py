@@ -114,7 +114,7 @@ class MatlabClass(MatlabType):
             pass
 
         if not hasattr(self, "__endfn"):
-            self.__endfn = self._Runtime.call("str2func", "end")
+            self.__endfn = self._runtime().call("str2func", "end")
 
         def end():
             return self._runtime().call(self.__endfn, self._as_runtime(), k, n)
