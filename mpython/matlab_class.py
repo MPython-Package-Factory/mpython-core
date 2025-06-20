@@ -6,14 +6,30 @@ from .core import MatlabType
 
 
 class MatlabClass(MatlabType):
+    """
+    Base class for wrapped MATLAB classes.
+
+    The MATLAB package wrapped by mpython must define its own inheriting
+    class that points to an appropriate runtime.
+
+    Example
+    -------
+    ```python
+    class MyPackageRuntimeMixin:
+        @classmethod
+        def _runtime(cls):
+            return MyPackageRuntime
+
+    class MyPackageClass(MyPackageRuntimeMixin, MatlabClass):
+        ...
+    ```
+    """
     _subclasses = dict()
 
     def __new__(cls, *args, _objdict=None, **kwargs):
         if _objdict is None:
             if cls.__name__ in MatlabClass._subclasses.keys():
-                from .runtime import Runtime
-
-                obj = Runtime.call(cls.__name__, *args, **kwargs)
+                obj = cls._runtime().call(cls.__name__, *args, **kwargs)
             else:
                 obj = super().__new__(cls)
         else:
@@ -41,7 +57,7 @@ class MatlabClass(MatlabType):
         return other
 
     @classmethod
-    def _from_runtime(cls, objdict):
+    def _from_runtime(cls, objdict, runtime=None):
         if objdict["class__"] in MatlabClass._subclasses.keys():
             obj = MatlabClass._subclasses[objdict["class__"]](_objdict=objdict)
         else:
@@ -91,18 +107,17 @@ class MatlabClass(MatlabType):
         # FIXME: This should not need to call matlab
         try:
             return tuple(
-                self._process_index(i, k + 1, len(ind)) for k, i in enumerate(ind)
+                self._process_index(i, k + 1, len(ind))
+                for k, i in enumerate(ind)
             )
         except TypeError:
             pass
 
-        from .runtime import Runtime
-
         if not hasattr(self, "__endfn"):
-            self.__endfn = Runtime.call("str2func", "end")
+            self.__endfn = self._runtime().call("str2func", "end")
 
         def end():
-            return Runtime.call(self.__endfn, self._as_runtime(), k, n)
+            return self._runtime().call(self.__endfn, self._as_runtime(), k, n)
 
         if isinstance(ind, int):
             if ind >= 0:

@@ -2,7 +2,11 @@ import numpy as np
 import warnings
 
 from .core import DelayedStruct, MatlabType, WrappedArray, _DictMixin
-from .utils import _copy_if_needed, _empty_array
+from .utils import _copy_if_needed, _empty_array, DelayedImport
+
+
+class _imports(DelayedImport):
+    Cell = 'mpython.cell.Cell'
 
 
 class Struct(_DictMixin, WrappedArray):
@@ -84,7 +88,8 @@ class Struct(_DictMixin, WrappedArray):
 
         data = np.empty(shape, dtype=dict)
         opt = dict(
-            flags=["refs_ok", "zerosize_ok"], op_flags=["writeonly", "no_broadcast"]
+            flags=["refs_ok", "zerosize_ok"],
+            op_flags=["writeonly", "no_broadcast"]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
@@ -126,7 +131,7 @@ class Struct(_DictMixin, WrappedArray):
         return dict(type__="structarray", size__=size, data__=data)
 
     @classmethod
-    def _from_runtime(cls, objdict: dict) -> "Struct":
+    def _from_runtime(cls, objdict: dict, runtime=None) -> "Struct":
         if objdict["type__"] != "structarray":
             raise TypeError("objdict is not a structarray")
         size = np.array(objdict["size__"], dtype=np.uint64).ravel()
@@ -141,18 +146,20 @@ class Struct(_DictMixin, WrappedArray):
             obj = data.view(cls)
         except Exception:
             raise RuntimeError(
-                f"Failed to construct Struct data:\n  data={data}\n  objdict={objdict}"
+                f"Failed to construct Struct data:\n"
+                f"  data={data}\n  objdict={objdict}"
             )
 
         # recurse
         opt = dict(
-            flags=["refs_ok", "zerosize_ok"], op_flags=["readonly", "no_broadcast"]
+            flags=["refs_ok", "zerosize_ok"],
+            op_flags=["readonly", "no_broadcast"]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
                 item = elem.item()
                 for key, val in item.items():
-                    item[key] = MatlabType._from_runtime(val)
+                    item[key] = MatlabType._from_runtime(val, runtime)
 
         return obj
 
@@ -265,8 +272,7 @@ class Struct(_DictMixin, WrappedArray):
     @classmethod
     def from_cell(cls, other, **kwargs) -> "Struct":
         """See `from_any`."""
-        from .cell import Cell
-
+        Cell = _imports.Cell
         if not isinstance(other, Cell):
             raise TypeError(f"Expected a {Cell} but got a {type(other)}.")
         return cls.from_any(other, **kwargs)
@@ -347,12 +353,10 @@ class Struct(_DictMixin, WrappedArray):
                 for key in keys:
                     asdict[key].append(item[key])
 
-        from .cell import Cell
-
+        Cell = _imports.Cell
         for key in keys:
             asdict[key] = Cell.from_any(asdict[key])
 
-        raise ValueError(keys)
         return asdict
 
     def _allkeys(self):

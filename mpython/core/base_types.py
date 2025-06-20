@@ -2,7 +2,17 @@ from functools import partial
 
 import numpy as np
 
-from ..utils import _import_matlab, _matlab_array_types
+from ..utils import _import_matlab, _matlab_array_types, DelayedImport
+
+
+class _imports(DelayedImport):
+    Array = 'mpython.array.Array'
+    Cell = 'mpython.cell.Cell'
+    Struct = 'mpython.struct.Struct'
+    SparseArray = 'mpython.sparse_array.SparseArray'
+    MatlabClass = 'mpython.matlab_class.MatlabClass'
+    MatlabFunction = 'mpython.matlab_function.MatlabFunction'
+    AnyDelayedArray = 'mpython.core.delayed_types.AnyDelayedArray'
 
 
 class MatlabType:
@@ -16,16 +26,14 @@ class MatlabType:
 
         !!! warning "Conversion is performed in-place when possible."
         """
-        # FIXME: Circular import
-        from ..array import Array
-
-        # FIXME: Circular import
-        from ..cell import Cell
-        from ..matlab_class import MatlabClass
-        from ..matlab_function import MatlabFunction
-        from ..sparse_array import SparseArray
-        from ..struct import Struct
-        from .delayed_types import AnyDelayedArray
+        # Circular import
+        Array = _imports.Array
+        Cell = _imports.Cell
+        MatlabClass = _imports.MatlabClass
+        MatlabFunction = _imports.MatlabFunction
+        SparseArray = _imports.SparseArray
+        Struct = _imports.Struct
+        AnyDelayedArray = _imports.AnyDelayedArray
 
         # Conversion rules:
         # - we do not convert to matlab's own array types
@@ -34,7 +42,7 @@ class MatlabType:
         #   the matlab runtime;
         # - instead, we convert to python types that mimic matlab types.
         _from_any = partial(cls.from_any, **kwargs)
-        _from_runtime = kwargs.pop("_from_runtime", False)
+        _runtime = kwargs.pop("_runtime", None)
 
         if isinstance(other, MatlabType):
             if isinstance(other, AnyDelayedArray):
@@ -56,21 +64,21 @@ class MatlabType:
                 elif type__ == "structarray":
                     # MPython returns a list of dictionaries in data__
                     # and the array shape in size__.
-                    return Struct._from_runtime(other)
+                    return Struct._from_runtime(other, _runtime)
 
                 elif type__ == "cell":
                     # MPython returns a list of dictionaries in data__
                     # and the array shape in size__.
-                    return Cell._from_runtime(other)
+                    return Cell._from_runtime(other, _runtime)
 
                 elif type__ == "object":
                     # MPython returns the object's fields serialized
                     # in a dictionary.
-                    return MatlabClass._from_runtime(other)
+                    return MatlabClass._from_runtime(other, _runtime)
 
                 elif type__ == "sparse":
                     # MPython returns the coordinates and values in a dict.
-                    return SparseArray._from_runtime(other)
+                    return SparseArray._from_runtime(other, _runtime)
 
                 elif type__ == "char":
                     # Character array that is not a row vector
@@ -82,26 +90,28 @@ class MatlabType:
                     size = size[:-1] + [1]
                     other["type__"] = "cell"
                     other["size__"] = np.asarray([size])
-                    return Cell._from_runtime(other)
+                    return Cell._from_runtime(other, _runtime)
 
                 else:
                     raise ValueError("Don't know what to do with type", type__)
 
             else:
-                other = type(other)(zip(other.keys(), map(_from_any, other.values())))
+                other = type(other)(
+                    zip(other.keys(), map(_from_any, other.values()))
+                )
                 return Struct.from_any(other)
 
         if isinstance(other, (list, tuple, set)):
             # nested tuples are cells of cells, not cell arrays
-            if _from_runtime:
-                return Cell._from_runtime(other)
+            if _runtime:
+                return Cell._from_runtime(other, _runtime)
             else:
                 return Cell.from_any(other)
 
         if isinstance(other, (np.ndarray, int, float, complex, bool)):
             # [array of] numbers -> Array
-            if _from_runtime:
-                return Array._from_runtime(other)
+            if _runtime:
+                return Array._from_runtime(other, _runtime)
             else:
                 return Array.from_any(other)
 
@@ -117,20 +127,20 @@ class MatlabType:
 
         matlab = _import_matlab()
         if matlab and isinstance(other, matlab.object):
-            return MatlabFunction.from_any(other)
+            return MatlabFunction._from_runtime(other, _runtime)
 
         if type(other) in _matlab_array_types():
-            return Array._from_runtime(other)
+            return Array._from_runtime(other, _runtime)
 
         if hasattr(other, "__iter__"):
             # Iterable -> let's try to make it a cell
-            return cls.from_any(list(other), _from_runtime=_from_runtime)
+            return cls.from_any(list(other), _runtime=_runtime)
 
         raise TypeError(f"Cannot convert {type(other)} into a matlab object.")
 
     @classmethod
-    def _from_runtime(cls, obj):
-        return cls.from_any(obj, _from_runtime=True)
+    def _from_runtime(cls, obj, _runtime):
+        return cls.from_any(obj, _runtime=_runtime)
 
     @classmethod
     def _to_runtime(cls, obj):
@@ -162,8 +172,7 @@ class MatlabType:
             return obj
 
         elif sparse and isinstance(obj, sparse.sparray):
-            from .SparseArray import SparseArray
-
+            SparseArray = _imports.SparseArray
             return SparseArray.from_any(obj)._as_runtime()
 
         else:
@@ -192,14 +201,20 @@ class AnyMatlabArray(MatlabType):
 
     @property
     def as_num(self):
-        raise TypeError(f"Cannot interpret a {type(self).__name__} as a numeric array")
+        raise TypeError(
+            f"Cannot interpret a {type(self).__name__} as a numeric array"
+        )
 
     @property
     def as_cell(self):
-        raise TypeError(f"Cannot interpret a {type(self).__name__} as a cell")
+        raise TypeError(
+            f"Cannot interpret a {type(self).__name__} as a cell"
+        )
 
     @property
     def as_struct(self):
-        raise TypeError(f"Cannot interpret a {type(self).__name__} as a struct")
+        raise TypeError(
+            f"Cannot interpret a {type(self).__name__} as a struct"
+        )
 
     # TODO: `as_obj` for object arrays?
