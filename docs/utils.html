@@ -44,6 +44,94 @@ el.replaceWith(d);
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="mpython.utils.DelayedImport"><code class="flex name class">
+<span>class <span class="ident">DelayedImport</span></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DelayedImport:
+    &#34;&#34;&#34;A utility to delay the import of modules or variables.
+
+    Until they are imported, import paths are wrapped in a
+    `DelayedImportElement` object. The first time an element is accessed,
+    it triggers the underlying import and assign the imported module or
+    object into the `DelayedImport` child class, while getting rid
+    of the `DelayedImportElement` wrapper. Thereby, the next time the
+    element is accessed, the module is directly obtained. This strategy
+    minimizes overhead on subsequent calls (no need to test whether
+    the module has already been imported or not).
+
+    Example
+    -------
+    ```python
+    # module_with_definitions.py
+    class _imports(DelayedImport):
+        Array = &#39;mpython.array.Array&#39;
+        Cell = &#39;mpython.cell.Cell&#39;
+
+    def foo():
+        Array = _imports.Array
+        Cell = _imports.Cell
+    ```
+    &#34;&#34;&#34;
+    def __init_subclass__(cls):
+        for key, val in cls.__dict__.items():
+            if key.startswith(&#34;__&#34;):
+                continue
+            setattr(cls, key, DelayedImportElement(key, val))</code></pre>
+</details>
+<div class="desc"><p>A utility to delay the import of modules or variables.</p>
+<p>Until they are imported, import paths are wrapped in a
+<code><a title="mpython.utils.DelayedImportElement" href="#mpython.utils.DelayedImportElement">DelayedImportElement</a></code> object. The first time an element is accessed,
+it triggers the underlying import and assign the imported module or
+object into the <code><a title="mpython.utils.DelayedImport" href="#mpython.utils.DelayedImport">DelayedImport</a></code> child class, while getting rid
+of the <code><a title="mpython.utils.DelayedImportElement" href="#mpython.utils.DelayedImportElement">DelayedImportElement</a></code> wrapper. Thereby, the next time the
+element is accessed, the module is directly obtained. This strategy
+minimizes overhead on subsequent calls (no need to test whether
+the module has already been imported or not).</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python"># module_with_definitions.py
+class _imports(DelayedImport):
+    Array = 'mpython.array.Array'
+    Cell = 'mpython.cell.Cell'
+
+def foo():
+    Array = _imports.Array
+    Cell = _imports.Cell
+</code></pre></div>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li>mpython.array._imports</li>
+<li>mpython.core.base_types._imports</li>
+<li>mpython.core.delayed_types._imports</li>
+<li>mpython.core.mixin_types._imports</li>
+<li>mpython.core.wrapped_types._imports</li>
+<li>mpython.struct._imports</li>
+</ul>
+</dd>
+<dt id="mpython.utils.DelayedImportElement"><code class="flex name class">
+<span>class <span class="ident">DelayedImportElement</span></span>
+<span>(</span><span>name, import_path=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    assert instance is None
+    imported = self._import()
+    setattr(owner, self.name, imported)
+    return imported</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -54,6 +142,16 @@ el.replaceWith(d);
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="mpython" href="index.html">mpython</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="mpython.utils.DelayedImport" href="#mpython.utils.DelayedImport">DelayedImport</a></code></h4>
+</li>
+<li>
+<h4><code><a title="mpython.utils.DelayedImportElement" href="#mpython.utils.DelayedImportElement">DelayedImportElement</a></code></h4>
+</li>
 </ul>
 </li>
 </ul>

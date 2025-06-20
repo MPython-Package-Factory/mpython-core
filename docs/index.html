@@ -146,7 +146,7 @@ el.replaceWith(d);
         return np.ndarray.view(self, np.ndarray)
 
     @classmethod
-    def _from_runtime(cls, other) -&gt; &#34;Array&#34;:
+    def _from_runtime(cls, other, runtime=None) -&gt; &#34;Array&#34;:
         other = np.asarray(other)
         if len(other.shape) == 2 and other.shape[0] == 1:
             other = other.squeeze(0)
@@ -274,7 +274,7 @@ el.replaceWith(d);
         array : Array
             Converted array.
         &#34;&#34;&#34;
-        from .cell import Cell  # FIXME: avoid circular import
+        Cell = _imports.Cell
 
         if not isinstance(other, Cell):
             raise TypeError(f&#34;Expected a {Cell} but got a {type(other)}&#34;)
@@ -530,7 +530,8 @@ def as_num(self) -&gt; &#34;Array&#34;:
     def _DEFAULT(cls, shape: list = ()) -&gt; np.ndarray:
         data = np.empty(shape, dtype=object)
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
@@ -540,7 +541,8 @@ def as_num(self) -&gt; &#34;Array&#34;:
     def _fill_default(self):
         arr = np.ndarray.view(self, np.ndarray)
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
@@ -569,7 +571,7 @@ def as_num(self) -&gt; &#34;Array&#34;:
             return dict(type__=&#34;cell&#34;, size__=size, data__=data)
 
     @classmethod
-    def _from_runtime(cls, objdict: dict) -&gt; &#34;Cell&#34;:
+    def _from_runtime(cls, objdict: dict, runtime=None) -&gt; &#34;Cell&#34;:
         if isinstance(objdict, (list, tuple, set)):
             shape = [len(objdict)]
             objdict = dict(type__=&#34;cell&#34;, size__=shape, data__=objdict)
@@ -589,16 +591,18 @@ def as_num(self) -&gt; &#34;Array&#34;:
             obj = data.view(cls)
         except Exception:
             raise RuntimeError(
-                f&#34;Failed to construct Cell data:\n  data={data}\n  objdict={objdict}&#34;
+                f&#34;Failed to construct Cell data:\n&#34;
+                f&#34;  data={data}\n  objdict={objdict}&#34;
             )
 
         # recurse
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
-                elem[()] = MatlabType._from_runtime(elem.item())
+                elem[()] = MatlabType._from_runtime(elem.item(), runtime)
 
         return obj
 
@@ -680,10 +684,6 @@ def as_num(self) -&gt; &#34;Array&#34;:
 
         # recursive shallow conversion
         if not deepcat:
-            # make sure matlab is imported so that we can detect
-            # matlab arrays.
-            _import_matlab()
-
             # This is so list[list] are converted to Cell[Cell] and
             # not to a 2D Cell array.
             def asrecursive(other):
@@ -729,7 +729,8 @@ def as_num(self) -&gt; &#34;Array&#34;:
 
         # recurse
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(other, **opt) as iter:
             for elem in iter:
@@ -749,7 +750,8 @@ def as_num(self) -&gt; &#34;Array&#34;:
         rebuild = False
         arr = np.asarray(arr)
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
@@ -1109,14 +1111,30 @@ def as_cell(self) -&gt; &#34;Cell&#34;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MatlabClass(MatlabType):
+    &#34;&#34;&#34;
+    Base class for wrapped MATLAB classes.
+
+    The MATLAB package wrapped by mpython must define its own inheriting
+    class that points to an appropriate runtime.
+
+    Example
+    -------
+    ```python
+    class MyPackageRuntimeMixin:
+        @classmethod
+        def _runtime(cls):
+            return MyPackageRuntime
+
+    class MyPackageClass(MyPackageRuntimeMixin, MatlabClass):
+        ...
+    ```
+    &#34;&#34;&#34;
     _subclasses = dict()
 
     def __new__(cls, *args, _objdict=None, **kwargs):
         if _objdict is None:
             if cls.__name__ in MatlabClass._subclasses.keys():
-                from .runtime import Runtime
-
-                obj = Runtime.call(cls.__name__, *args, **kwargs)
+                obj = cls._runtime().call(cls.__name__, *args, **kwargs)
             else:
                 obj = super().__new__(cls)
         else:
@@ -1144,7 +1162,7 @@ def as_cell(self) -&gt; &#34;Cell&#34;:
         return other
 
     @classmethod
-    def _from_runtime(cls, objdict):
+    def _from_runtime(cls, objdict, runtime=None):
         if objdict[&#34;class__&#34;] in MatlabClass._subclasses.keys():
             obj = MatlabClass._subclasses[objdict[&#34;class__&#34;]](_objdict=objdict)
         else:
@@ -1194,18 +1212,17 @@ def as_cell(self) -&gt; &#34;Cell&#34;:
         # FIXME: This should not need to call matlab
         try:
             return tuple(
-                self._process_index(i, k + 1, len(ind)) for k, i in enumerate(ind)
+                self._process_index(i, k + 1, len(ind))
+                for k, i in enumerate(ind)
             )
         except TypeError:
             pass
 
-        from .runtime import Runtime
-
         if not hasattr(self, &#34;__endfn&#34;):
-            self.__endfn = Runtime.call(&#34;str2func&#34;, &#34;end&#34;)
+            self.__endfn = self._runtime().call(&#34;str2func&#34;, &#34;end&#34;)
 
         def end():
-            return Runtime.call(self.__endfn, self._as_runtime(), k, n)
+            return self._runtime().call(self.__endfn, self._as_runtime(), k, n)
 
         if isinstance(ind, int):
             if ind &gt;= 0:
@@ -1248,7 +1265,18 @@ def as_cell(self) -&gt; &#34;Cell&#34;:
 
         return index</code></pre>
 </details>
-<div class="desc"><p>Generic type for objects that have an exact matlab equivalent.</p></div>
+<div class="desc"><p>Base class for wrapped MATLAB classes.</p>
+<p>The MATLAB package wrapped by mpython must define its own inheriting
+class that points to an appropriate runtime.</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python">class MyPackageRuntimeMixin:
+    @classmethod
+    def _runtime(cls):
+        return MyPackageRuntime
+
+class MyPackageClass(MyPackageRuntimeMixin, MatlabClass):
+    ...
+</code></pre></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="mpython.core.base_types.MatlabType" href="core/base_types.html#mpython.core.base_types.MatlabType">MatlabType</a></li>
@@ -1264,7 +1292,7 @@ def as_cell(self) -&gt; &#34;Cell&#34;:
 </dd>
 <dt id="mpython.MatlabFunction"><code class="flex name class">
 <span>class <span class="ident">MatlabFunction</span></span>
-<span>(</span><span>matlab_object)</span>
+<span>(</span><span>matlab_object, runtime)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -1275,6 +1303,8 @@ def as_cell(self) -&gt; &#34;Cell&#34;:
     &#34;&#34;&#34;
     Wrapper for matlab function handles.
 
+    End users should not have to instantiate such objects themselves.
+
     Example
     -------
     ```python
@@ -1283,7 +1313,7 @@ def as_cell(self) -&gt; &#34;Cell&#34;:
     ```
     &#34;&#34;&#34;
 
-    def __init__(self, matlab_object):
+    def __init__(self, matlab_object, runtime):
         super().__init__()
 
         matlab = _import_matlab()
@@ -1291,26 +1321,26 @@ def as_cell(self) -&gt; &#34;Cell&#34;:
             raise TypeError(&#34;Expected a matlab.object&#34;)
 
         self._matlab_object = matlab_object
+        self._runtime = runtime
 
     def _as_runtime(self):
         return self._matlab_object
 
     @classmethod
-    def _from_runtime(cls, other):
-        return cls(other)
+    def _from_runtime(cls, other, runtime):
+        return cls(other, runtime)
 
     @classmethod
-    def from_any(cls, other):
+    def from_any(cls, other, runtime=None):
         if isinstance(other, MatlabFunction):
             return other
-        return cls._from_runtime(other)
+        return cls._from_runtime(other, runtime)
 
     def __call__(self, *args, **kwargs):
-        from .runtime import Runtime
-
-        return Runtime.call(self._matlab_object, *args, **kwargs)</code></pre>
+        return self._runtime.call(self._matlab_object, *args, **kwargs)</code></pre>
 </details>
 <div class="desc"><p>Wrapper for matlab function handles.</p>
+<p>End users should not have to instantiate such objects themselves.</p>
 <h2 id="example">Example</h2>
 <pre><code class="language-python">times2 = Runtime.call(&quot;eval&quot;, &quot;@(x) 2.*x&quot;)
 assert(time2(1) == 2)
@@ -1336,76 +1366,97 @@ assert(time2(1) == 2)
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Runtime:
-    &#34;&#34;&#34;Namespace that holds the matlab runtime. All methods are static.&#34;&#34;&#34;
+<pre><code class="python">class Runtime(ABC):
+    &#34;&#34;&#34;Namespace that holds the matlab runtime.
 
-    _initialize = None
+    Wrapped packages should implement their own inheriting class
+    and define the `_import` method.
+
+    Example
+    -------
+    ```python
+    class SPMRuntime(Runtime):
+
+        @classmethod
+        def _import_runtime(cls):
+            import spm_runtime
+            return spm_runtime
+    ```
+    &#34;&#34;&#34;
+
     _instance = None
     verbose = True
 
-    @staticmethod
-    def instance():
-        if Runtime._instance is None:
-            if Runtime.verbose:
+    @classmethod
+    @abstractmethod
+    def _import_runtime(cls):
+        &#34;&#34;&#34;&#34;&#34;&#34;
+        ...
+
+    @classmethod
+    def instance(cls):
+        if cls._instance is None:
+            if cls.verbose:
                 print(&#34;Initializing Matlab Runtime...&#34;)
-            Runtime._import_initialize()
-            Runtime._instance = Runtime._initialize()
-        return Runtime._instance
+            cls._init_instance()
+        return cls._instance
 
-    @staticmethod
-    def call(fn, *args, **kwargs):
-        (args, kwargs) = Runtime._process_argin(*args, **kwargs)
-        res = Runtime.instance().mpython_endpoint(fn, *args, **kwargs)
-        return Runtime._process_argout(res)
+    @classmethod
+    def call(cls, fn, *args, **kwargs):
+        (args, kwargs) = cls._process_argin(*args, **kwargs)
+        res = cls.instance().mpython_endpoint(fn, *args, **kwargs)
+        return cls._process_argout(res)
 
-    @staticmethod
-    def _process_argin(*args, **kwargs):
+    @classmethod
+    def _process_argin(cls, *args, **kwargs):
         to_runtime = MatlabType._to_runtime
         args = tuple(map(to_runtime, args))
         kwargs = dict(zip(kwargs.keys(), map(to_runtime, kwargs.values())))
         return args, kwargs
 
-    @staticmethod
-    def _process_argout(res):
-        return MatlabType._from_runtime(res)
+    @classmethod
+    def _process_argout(cls, res):
+        return MatlabType._from_runtime(res, cls)
 
-    @staticmethod
-    def _import_initialize():
+    @classmethod
+    def _init_instance(cls):
         # NOTE(YB)
         #   I moved the import within a function so that array wrappers
         #   can be imported and used even when matlab is not properly setup.
-        if Runtime._initialize:
+        if cls._instance:
             return
         try:
-            from spm._spm import initialize
-
-            Runtime._initialize = initialize
+            cls._instance = cls._import_runtime()
+            # Make sure matlab is imported
+            _import_matlab()
         except ImportError as e:
-            # ~~~ UNUSED ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            # import os
-            # installer_path = os.path.join(
-            #     os.path.dirname(os.path.abspath(__file__)),
-            #     &#39;_spm&#39;,
-            #     &#39;resources&#39;,
-            #     &#39;RuntimeInstaller.install&#39;
-            # )
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            print(Runtime._help)
+            print(cls._help)
             raise e
 
-        # Make sure matlab is imported
-        _import_matlab()
-
     _help = &#34;&#34;&#34;
-    Failed to import spm._spm. This can be due to a failure to find Matlab
-    Runtime. Please verify that Matlab Runtime is installed and its path is set.
-    See https://www.mathworks.com/help/compiler/mcr-path-settings-for-run-time-deployment.html
-    for instructions on how to setup the path.
+    Failed to import package runtime. This can be due to a failure to find the
+    MATLAB Runtime. Please verify that MATLAB Runtime is installed and can be
+    discovered. See https://github.com/balbasty/matlab-runtime for instructions
+    on how to install the MATLAB Runtime.
     If the issue persists, please open an issue with the entire error
-    message at https://github.com/spm/spm-python/issues.
+    message at https://github.com/MPython-Package-Factory/mpython-core/issues.
     &#34;&#34;&#34;</code></pre>
 </details>
-<div class="desc"><p>Namespace that holds the matlab runtime. All methods are static.</p></div>
+<div class="desc"><p>Namespace that holds the matlab runtime.</p>
+<p>Wrapped packages should implement their own inheriting class
+and define the <code>_import</code> method.</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python">class SPMRuntime(Runtime):
+
+    @classmethod
+    def _import_runtime(cls):
+        import spm_runtime
+        return spm_runtime
+</code></pre></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
 <h3>Class variables</h3>
 <dl>
 <dt id="mpython.Runtime.verbose"><code class="name">var <span class="ident">verbose</span></code></dt>
@@ -1419,35 +1470,12 @@ assert(time2(1) == 2)
 <span>def <span class="ident">call</span></span>(<span>fn, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def call(fn, *args, **kwargs):
-    (args, kwargs) = Runtime._process_argin(*args, **kwargs)
-    res = Runtime.instance().mpython_endpoint(fn, *args, **kwargs)
-    return Runtime._process_argout(res)</code></pre>
-</details>
 <div class="desc"></div>
 </dd>
 <dt id="mpython.Runtime.instance"><code class="name flex">
 <span>def <span class="ident">instance</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def instance():
-    if Runtime._instance is None:
-        if Runtime.verbose:
-            print(&#34;Initializing Matlab Runtime...&#34;)
-        Runtime._import_initialize()
-        Runtime._instance = Runtime._initialize()
-    return Runtime._instance</code></pre>
-</details>
 <div class="desc"></div>
 </dd>
 </dl>
@@ -1701,7 +1729,8 @@ converted to a sparse array when passed to matlab.</p>
 
         data = np.empty(shape, dtype=dict)
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
@@ -1743,7 +1772,7 @@ converted to a sparse array when passed to matlab.</p>
         return dict(type__=&#34;structarray&#34;, size__=size, data__=data)
 
     @classmethod
-    def _from_runtime(cls, objdict: dict) -&gt; &#34;Struct&#34;:
+    def _from_runtime(cls, objdict: dict, runtime=None) -&gt; &#34;Struct&#34;:
         if objdict[&#34;type__&#34;] != &#34;structarray&#34;:
             raise TypeError(&#34;objdict is not a structarray&#34;)
         size = np.array(objdict[&#34;size__&#34;], dtype=np.uint64).ravel()
@@ -1758,18 +1787,20 @@ converted to a sparse array when passed to matlab.</p>
             obj = data.view(cls)
         except Exception:
             raise RuntimeError(
-                f&#34;Failed to construct Struct data:\n  data={data}\n  objdict={objdict}&#34;
+                f&#34;Failed to construct Struct data:\n&#34;
+                f&#34;  data={data}\n  objdict={objdict}&#34;
             )
 
         # recurse
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;readonly&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;readonly&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
                 item = elem.item()
                 for key, val in item.items():
-                    item[key] = MatlabType._from_runtime(val)
+                    item[key] = MatlabType._from_runtime(val, runtime)
 
         return obj
 
@@ -1882,8 +1913,7 @@ converted to a sparse array when passed to matlab.</p>
     @classmethod
     def from_cell(cls, other, **kwargs) -&gt; &#34;Struct&#34;:
         &#34;&#34;&#34;See `from_any`.&#34;&#34;&#34;
-        from .cell import Cell
-
+        Cell = _imports.Cell
         if not isinstance(other, Cell):
             raise TypeError(f&#34;Expected a {Cell} but got a {type(other)}.&#34;)
         return cls.from_any(other, **kwargs)
@@ -1964,12 +1994,10 @@ converted to a sparse array when passed to matlab.</p>
                 for key in keys:
                     asdict[key].append(item[key])
 
-        from .cell import Cell
-
+        Cell = _imports.Cell
         for key in keys:
             asdict[key] = Cell.from_any(asdict[key])
 
-        raise ValueError(keys)
         return asdict
 
     def _allkeys(self):
@@ -2380,12 +2408,10 @@ def as_struct(self) -&gt; &#34;Struct&#34;:
             for key in keys:
                 asdict[key].append(item[key])
 
-    from .cell import Cell
-
+    Cell = _imports.Cell
     for key in keys:
         asdict[key] = Cell.from_any(asdict[key])
 
-    raise ValueError(keys)
     return asdict</code></pre>
 </details>
 <div class="desc"><p>Convert the object into a plain dict.</p>

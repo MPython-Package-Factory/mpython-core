@@ -116,7 +116,8 @@ el.replaceWith(d);
     def _DEFAULT(cls, shape: list = ()) -&gt; np.ndarray:
         data = np.empty(shape, dtype=object)
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
@@ -126,7 +127,8 @@ el.replaceWith(d);
     def _fill_default(self):
         arr = np.ndarray.view(self, np.ndarray)
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
@@ -155,7 +157,7 @@ el.replaceWith(d);
             return dict(type__=&#34;cell&#34;, size__=size, data__=data)
 
     @classmethod
-    def _from_runtime(cls, objdict: dict) -&gt; &#34;Cell&#34;:
+    def _from_runtime(cls, objdict: dict, runtime=None) -&gt; &#34;Cell&#34;:
         if isinstance(objdict, (list, tuple, set)):
             shape = [len(objdict)]
             objdict = dict(type__=&#34;cell&#34;, size__=shape, data__=objdict)
@@ -175,16 +177,18 @@ el.replaceWith(d);
             obj = data.view(cls)
         except Exception:
             raise RuntimeError(
-                f&#34;Failed to construct Cell data:\n  data={data}\n  objdict={objdict}&#34;
+                f&#34;Failed to construct Cell data:\n&#34;
+                f&#34;  data={data}\n  objdict={objdict}&#34;
             )
 
         # recurse
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
-                elem[()] = MatlabType._from_runtime(elem.item())
+                elem[()] = MatlabType._from_runtime(elem.item(), runtime)
 
         return obj
 
@@ -266,10 +270,6 @@ el.replaceWith(d);
 
         # recursive shallow conversion
         if not deepcat:
-            # make sure matlab is imported so that we can detect
-            # matlab arrays.
-            _import_matlab()
-
             # This is so list[list] are converted to Cell[Cell] and
             # not to a 2D Cell array.
             def asrecursive(other):
@@ -315,7 +315,8 @@ el.replaceWith(d);
 
         # recurse
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(other, **opt) as iter:
             for elem in iter:
@@ -335,7 +336,8 @@ el.replaceWith(d);
         rebuild = False
         arr = np.asarray(arr)
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;readwrite&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(arr, **opt) as iter:
             for elem in iter:

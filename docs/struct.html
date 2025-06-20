@@ -134,7 +134,8 @@ el.replaceWith(d);
 
         data = np.empty(shape, dtype=dict)
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;writeonly&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
@@ -176,7 +177,7 @@ el.replaceWith(d);
         return dict(type__=&#34;structarray&#34;, size__=size, data__=data)
 
     @classmethod
-    def _from_runtime(cls, objdict: dict) -&gt; &#34;Struct&#34;:
+    def _from_runtime(cls, objdict: dict, runtime=None) -&gt; &#34;Struct&#34;:
         if objdict[&#34;type__&#34;] != &#34;structarray&#34;:
             raise TypeError(&#34;objdict is not a structarray&#34;)
         size = np.array(objdict[&#34;size__&#34;], dtype=np.uint64).ravel()
@@ -191,18 +192,20 @@ el.replaceWith(d);
             obj = data.view(cls)
         except Exception:
             raise RuntimeError(
-                f&#34;Failed to construct Struct data:\n  data={data}\n  objdict={objdict}&#34;
+                f&#34;Failed to construct Struct data:\n&#34;
+                f&#34;  data={data}\n  objdict={objdict}&#34;
             )
 
         # recurse
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;], op_flags=[&#34;readonly&#34;, &#34;no_broadcast&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;],
+            op_flags=[&#34;readonly&#34;, &#34;no_broadcast&#34;]
         )
         with np.nditer(data, **opt) as iter:
             for elem in iter:
                 item = elem.item()
                 for key, val in item.items():
-                    item[key] = MatlabType._from_runtime(val)
+                    item[key] = MatlabType._from_runtime(val, runtime)
 
         return obj
 
@@ -315,8 +318,7 @@ el.replaceWith(d);
     @classmethod
     def from_cell(cls, other, **kwargs) -&gt; &#34;Struct&#34;:
         &#34;&#34;&#34;See `from_any`.&#34;&#34;&#34;
-        from .cell import Cell
-
+        Cell = _imports.Cell
         if not isinstance(other, Cell):
             raise TypeError(f&#34;Expected a {Cell} but got a {type(other)}.&#34;)
         return cls.from_any(other, **kwargs)
@@ -397,12 +399,10 @@ el.replaceWith(d);
                 for key in keys:
                     asdict[key].append(item[key])
 
-        from .cell import Cell
-
+        Cell = _imports.Cell
         for key in keys:
             asdict[key] = Cell.from_any(asdict[key])
 
-        raise ValueError(keys)
         return asdict
 
     def _allkeys(self):
@@ -813,12 +813,10 @@ def as_struct(self) -&gt; &#34;Struct&#34;:
             for key in keys:
                 asdict[key].append(item[key])
 
-    from .cell import Cell
-
+    Cell = _imports.Cell
     for key in keys:
         asdict[key] = Cell.from_any(asdict[key])
 
-    raise ValueError(keys)
     return asdict</code></pre>
 </details>
 <div class="desc"><p>Convert the object into a plain dict.</p>

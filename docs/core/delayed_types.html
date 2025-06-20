@@ -217,7 +217,9 @@ el.replaceWith(d);
         if self._future is None:
             self._future = DelayedCell((), self._parent, *self._index)
         if not isinstance(self._future, DelayedCell):
-            raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Cell&#34;)
+            raise TypeError(
+                f&#34;{type(self._future)} cannot be interpreted as a Cell&#34;
+            )
         return self._future
 
     @property
@@ -225,7 +227,9 @@ el.replaceWith(d);
         if self._future is None:
             self._future = DelayedStruct((), self._parent, *self._index)
         if not isinstance(self._future, DelayedStruct):
-            raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Struct&#34;)
+            raise TypeError(
+                f&#34;{type(self._future)} cannot be interpreted as a Struct&#34;
+            )
         return self._future
 
     @property
@@ -233,13 +237,17 @@ el.replaceWith(d);
         if self._future is None:
             self._future = DelayedArray([0], self._parent, *self._index)
         if not isinstance(self._future, DelayedArray):
-            raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Array&#34;)
+            raise TypeError(
+                f&#34;{type(self._future)} cannot be interpreted as a Array&#34;
+            )
         return self._future
 
     def as_obj(self, obj):
-        from ..matlab_class import MatlabClass
-
-        if self._future is not None and not isinstance(self._future, MatlabClass):
+        MatlabClass = _imports.MatlabClass
+        if (
+            self._future is not None and
+            not isinstance(self._future, MatlabClass)
+        ):
             raise TypeError(
                 f&#34;{type(self._future)} cannot be interpreted as a {type(obj)}&#34;
             )
@@ -258,10 +266,10 @@ el.replaceWith(d);
         return self.as_struct[key]
 
     def __setitem__(self, index, value):
-        from ..array import Array
-        from ..cell import Cell
-        from ..matlab_class import MatlabClass
-        from ..struct import Struct
+        Array = _imports.Array
+        Cell = _imports.Cell
+        MatlabClass = _imports.MatlabClass
+        Struct = _imports.Struct
 
         if isinstance(index, str):
             arr = self.as_struct
@@ -269,7 +277,8 @@ el.replaceWith(d);
         elif isinstance(value, MatlabClass):
             if index not in (0, -1):
                 raise NotImplementedError(
-                    &#34;Implicit advanced indexing not implemented for&#34;, type(value)
+                    &#34;Implicit advanced indexing not implemented for&#34;,
+                    type(value)
                 )
             self.as_obj(value)
             return self._finalize()
@@ -419,7 +428,9 @@ def as_cell(self) -&gt; &#34;DelayedCell&#34;:
     if self._future is None:
         self._future = DelayedCell((), self._parent, *self._index)
     if not isinstance(self._future, DelayedCell):
-        raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Cell&#34;)
+        raise TypeError(
+            f&#34;{type(self._future)} cannot be interpreted as a Cell&#34;
+        )
     return self._future</code></pre>
 </details>
 <div class="desc"></div>
@@ -435,7 +446,9 @@ def as_num(self) -&gt; &#34;DelayedArray&#34;:
     if self._future is None:
         self._future = DelayedArray([0], self._parent, *self._index)
     if not isinstance(self._future, DelayedArray):
-        raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Array&#34;)
+        raise TypeError(
+            f&#34;{type(self._future)} cannot be interpreted as a Array&#34;
+        )
     return self._future</code></pre>
 </details>
 <div class="desc"></div>
@@ -451,7 +464,9 @@ def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
     if self._future is None:
         self._future = DelayedStruct((), self._parent, *self._index)
     if not isinstance(self._future, DelayedStruct):
-        raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Struct&#34;)
+        raise TypeError(
+            f&#34;{type(self._future)} cannot be interpreted as a Struct&#34;
+        )
     return self._future</code></pre>
 </details>
 <div class="desc"></div>
@@ -468,9 +483,11 @@ def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def as_obj(self, obj):
-    from ..matlab_class import MatlabClass
-
-    if self._future is not None and not isinstance(self._future, MatlabClass):
+    MatlabClass = _imports.MatlabClass
+    if (
+        self._future is not None and
+        not isinstance(self._future, MatlabClass)
+    ):
         raise TypeError(
             f&#34;{type(self._future)} cannot be interpreted as a {type(obj)}&#34;
         )
@@ -516,8 +533,7 @@ def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
         *index : int | str
             Index of the future object in its parent.
         &#34;&#34;&#34;
-        from ..array import Array
-
+        Array = _imports.Array
         future = Array.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)</code></pre>
@@ -576,8 +592,7 @@ def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
         *index : int | str
             Index of the future object in its parent.
         &#34;&#34;&#34;
-        from ..cell import Cell
-
+        Cell = _imports.Cell
         future = Cell.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)
@@ -646,8 +661,7 @@ def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
         *index : int | str
             Index of the future object in its parent.
         &#34;&#34;&#34;
-        from ..struct import Struct
-
+        Struct = _imports.Struct
         future = Struct.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)</code></pre>

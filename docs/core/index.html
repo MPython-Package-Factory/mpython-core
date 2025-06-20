@@ -236,7 +236,9 @@ el.replaceWith(d);
         if self._future is None:
             self._future = DelayedCell((), self._parent, *self._index)
         if not isinstance(self._future, DelayedCell):
-            raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Cell&#34;)
+            raise TypeError(
+                f&#34;{type(self._future)} cannot be interpreted as a Cell&#34;
+            )
         return self._future
 
     @property
@@ -244,7 +246,9 @@ el.replaceWith(d);
         if self._future is None:
             self._future = DelayedStruct((), self._parent, *self._index)
         if not isinstance(self._future, DelayedStruct):
-            raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Struct&#34;)
+            raise TypeError(
+                f&#34;{type(self._future)} cannot be interpreted as a Struct&#34;
+            )
         return self._future
 
     @property
@@ -252,13 +256,17 @@ el.replaceWith(d);
         if self._future is None:
             self._future = DelayedArray([0], self._parent, *self._index)
         if not isinstance(self._future, DelayedArray):
-            raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Array&#34;)
+            raise TypeError(
+                f&#34;{type(self._future)} cannot be interpreted as a Array&#34;
+            )
         return self._future
 
     def as_obj(self, obj):
-        from ..matlab_class import MatlabClass
-
-        if self._future is not None and not isinstance(self._future, MatlabClass):
+        MatlabClass = _imports.MatlabClass
+        if (
+            self._future is not None and
+            not isinstance(self._future, MatlabClass)
+        ):
             raise TypeError(
                 f&#34;{type(self._future)} cannot be interpreted as a {type(obj)}&#34;
             )
@@ -277,10 +285,10 @@ el.replaceWith(d);
         return self.as_struct[key]
 
     def __setitem__(self, index, value):
-        from ..array import Array
-        from ..cell import Cell
-        from ..matlab_class import MatlabClass
-        from ..struct import Struct
+        Array = _imports.Array
+        Cell = _imports.Cell
+        MatlabClass = _imports.MatlabClass
+        Struct = _imports.Struct
 
         if isinstance(index, str):
             arr = self.as_struct
@@ -288,7 +296,8 @@ el.replaceWith(d);
         elif isinstance(value, MatlabClass):
             if index not in (0, -1):
                 raise NotImplementedError(
-                    &#34;Implicit advanced indexing not implemented for&#34;, type(value)
+                    &#34;Implicit advanced indexing not implemented for&#34;,
+                    type(value)
                 )
             self.as_obj(value)
             return self._finalize()
@@ -438,7 +447,9 @@ def as_cell(self) -&gt; &#34;DelayedCell&#34;:
     if self._future is None:
         self._future = DelayedCell((), self._parent, *self._index)
     if not isinstance(self._future, DelayedCell):
-        raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Cell&#34;)
+        raise TypeError(
+            f&#34;{type(self._future)} cannot be interpreted as a Cell&#34;
+        )
     return self._future</code></pre>
 </details>
 <div class="desc"></div>
@@ -454,7 +465,9 @@ def as_num(self) -&gt; &#34;DelayedArray&#34;:
     if self._future is None:
         self._future = DelayedArray([0], self._parent, *self._index)
     if not isinstance(self._future, DelayedArray):
-        raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Array&#34;)
+        raise TypeError(
+            f&#34;{type(self._future)} cannot be interpreted as a Array&#34;
+        )
     return self._future</code></pre>
 </details>
 <div class="desc"></div>
@@ -470,7 +483,9 @@ def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
     if self._future is None:
         self._future = DelayedStruct((), self._parent, *self._index)
     if not isinstance(self._future, DelayedStruct):
-        raise TypeError(f&#34;{type(self._future)} cannot be interpreted as a Struct&#34;)
+        raise TypeError(
+            f&#34;{type(self._future)} cannot be interpreted as a Struct&#34;
+        )
     return self._future</code></pre>
 </details>
 <div class="desc"></div>
@@ -487,9 +502,11 @@ def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def as_obj(self, obj):
-    from ..matlab_class import MatlabClass
-
-    if self._future is not None and not isinstance(self._future, MatlabClass):
+    MatlabClass = _imports.MatlabClass
+    if (
+        self._future is not None and
+        not isinstance(self._future, MatlabClass)
+    ):
         raise TypeError(
             f&#34;{type(self._future)} cannot be interpreted as a {type(obj)}&#34;
         )
@@ -521,15 +538,21 @@ def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
 
     @property
     def as_num(self):
-        raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a numeric array&#34;)
+        raise TypeError(
+            f&#34;Cannot interpret a {type(self).__name__} as a numeric array&#34;
+        )
 
     @property
     def as_cell(self):
-        raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a cell&#34;)
+        raise TypeError(
+            f&#34;Cannot interpret a {type(self).__name__} as a cell&#34;
+        )
 
     @property
     def as_struct(self):
-        raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a struct&#34;)
+        raise TypeError(
+            f&#34;Cannot interpret a {type(self).__name__} as a struct&#34;
+        )
 
     # TODO: `as_obj` for object arrays?</code></pre>
 </details>
@@ -553,7 +576,9 @@ def as_struct(self) -&gt; &#34;DelayedStruct&#34;:
 </summary>
 <pre><code class="python">@property
 def as_cell(self):
-    raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a cell&#34;)</code></pre>
+    raise TypeError(
+        f&#34;Cannot interpret a {type(self).__name__} as a cell&#34;
+    )</code></pre>
 </details>
 <div class="desc"></div>
 </dd>
@@ -565,7 +590,9 @@ def as_cell(self):
 </summary>
 <pre><code class="python">@property
 def as_num(self):
-    raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a numeric array&#34;)</code></pre>
+    raise TypeError(
+        f&#34;Cannot interpret a {type(self).__name__} as a numeric array&#34;
+    )</code></pre>
 </details>
 <div class="desc"></div>
 </dd>
@@ -577,7 +604,9 @@ def as_num(self):
 </summary>
 <pre><code class="python">@property
 def as_struct(self):
-    raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a struct&#34;)</code></pre>
+    raise TypeError(
+        f&#34;Cannot interpret a {type(self).__name__} as a struct&#34;
+    )</code></pre>
 </details>
 <div class="desc"></div>
 </dd>
@@ -644,14 +673,16 @@ def as_struct(self):
         if args and __has_dtype:
             if &#34;dtype&#34; in kwargs:
                 raise TypeError(
-                    f&#34;{cls.__name__}() got multiple values for argument &#39;dtype&#39;&#34;
+                    f&#34;{cls.__name__}() got multiple values for argument &#34;
+                    f&#34;&#39;dtype&#39;&#34;
                 )
             kwargs[&#34;dtype&#34;] = args.pop(0)
         # 2. order {&#34;C&#34;, &#34;F&#34;}
         if args and __has_order:
             if &#34;order&#34; in kwargs:
                 raise TypeError(
-                    f&#34;{cls.__name__}() got multiple values for argument &#39;order&#39;&#34;
+                    f&#34;{cls.__name__}() got multiple values for argument &#34;
+                    f&#34;&#39;order&#39;&#34;
                 )
             kwargs[&#34;order&#34;] = args.pop(0)
         # 3. no other positionals allowed -&gt; raise
@@ -725,8 +756,7 @@ def as_struct(self):
         *index : int | str
             Index of the future object in its parent.
         &#34;&#34;&#34;
-        from ..array import Array
-
+        Array = _imports.Array
         future = Array.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)</code></pre>
@@ -785,8 +815,7 @@ def as_struct(self):
         *index : int | str
             Index of the future object in its parent.
         &#34;&#34;&#34;
-        from ..cell import Cell
-
+        Cell = _imports.Cell
         future = Cell.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)
@@ -855,8 +884,7 @@ def as_struct(self):
         *index : int | str
             Index of the future object in its parent.
         &#34;&#34;&#34;
-        from ..struct import Struct
-
+        Struct = _imports.Struct
         future = Struct.from_shape(shape)
         future._delayed_wrapper = self
         super().__init__(future, parent, *index)</code></pre>
@@ -907,16 +935,14 @@ def as_struct(self):
 
         !!! warning &#34;Conversion is performed in-place when possible.&#34;
         &#34;&#34;&#34;
-        # FIXME: Circular import
-        from ..array import Array
-
-        # FIXME: Circular import
-        from ..cell import Cell
-        from ..matlab_class import MatlabClass
-        from ..matlab_function import MatlabFunction
-        from ..sparse_array import SparseArray
-        from ..struct import Struct
-        from .delayed_types import AnyDelayedArray
+        # Circular import
+        Array = _imports.Array
+        Cell = _imports.Cell
+        MatlabClass = _imports.MatlabClass
+        MatlabFunction = _imports.MatlabFunction
+        SparseArray = _imports.SparseArray
+        Struct = _imports.Struct
+        AnyDelayedArray = _imports.AnyDelayedArray
 
         # Conversion rules:
         # - we do not convert to matlab&#39;s own array types
@@ -925,7 +951,7 @@ def as_struct(self):
         #   the matlab runtime;
         # - instead, we convert to python types that mimic matlab types.
         _from_any = partial(cls.from_any, **kwargs)
-        _from_runtime = kwargs.pop(&#34;_from_runtime&#34;, False)
+        _runtime = kwargs.pop(&#34;_runtime&#34;, None)
 
         if isinstance(other, MatlabType):
             if isinstance(other, AnyDelayedArray):
@@ -947,21 +973,21 @@ def as_struct(self):
                 elif type__ == &#34;structarray&#34;:
                     # MPython returns a list of dictionaries in data__
                     # and the array shape in size__.
-                    return Struct._from_runtime(other)
+                    return Struct._from_runtime(other, _runtime)
 
                 elif type__ == &#34;cell&#34;:
                     # MPython returns a list of dictionaries in data__
                     # and the array shape in size__.
-                    return Cell._from_runtime(other)
+                    return Cell._from_runtime(other, _runtime)
 
                 elif type__ == &#34;object&#34;:
                     # MPython returns the object&#39;s fields serialized
                     # in a dictionary.
-                    return MatlabClass._from_runtime(other)
+                    return MatlabClass._from_runtime(other, _runtime)
 
                 elif type__ == &#34;sparse&#34;:
                     # MPython returns the coordinates and values in a dict.
-                    return SparseArray._from_runtime(other)
+                    return SparseArray._from_runtime(other, _runtime)
 
                 elif type__ == &#34;char&#34;:
                     # Character array that is not a row vector
@@ -973,26 +999,28 @@ def as_struct(self):
                     size = size[:-1] + [1]
                     other[&#34;type__&#34;] = &#34;cell&#34;
                     other[&#34;size__&#34;] = np.asarray([size])
-                    return Cell._from_runtime(other)
+                    return Cell._from_runtime(other, _runtime)
 
                 else:
                     raise ValueError(&#34;Don&#39;t know what to do with type&#34;, type__)
 
             else:
-                other = type(other)(zip(other.keys(), map(_from_any, other.values())))
+                other = type(other)(
+                    zip(other.keys(), map(_from_any, other.values()))
+                )
                 return Struct.from_any(other)
 
         if isinstance(other, (list, tuple, set)):
             # nested tuples are cells of cells, not cell arrays
-            if _from_runtime:
-                return Cell._from_runtime(other)
+            if _runtime:
+                return Cell._from_runtime(other, _runtime)
             else:
                 return Cell.from_any(other)
 
         if isinstance(other, (np.ndarray, int, float, complex, bool)):
             # [array of] numbers -&gt; Array
-            if _from_runtime:
-                return Array._from_runtime(other)
+            if _runtime:
+                return Array._from_runtime(other, _runtime)
             else:
                 return Array.from_any(other)
 
@@ -1008,20 +1036,20 @@ def as_struct(self):
 
         matlab = _import_matlab()
         if matlab and isinstance(other, matlab.object):
-            return MatlabFunction.from_any(other)
+            return MatlabFunction._from_runtime(other, _runtime)
 
         if type(other) in _matlab_array_types():
-            return Array._from_runtime(other)
+            return Array._from_runtime(other, _runtime)
 
         if hasattr(other, &#34;__iter__&#34;):
             # Iterable -&gt; let&#39;s try to make it a cell
-            return cls.from_any(list(other), _from_runtime=_from_runtime)
+            return cls.from_any(list(other), _runtime=_runtime)
 
         raise TypeError(f&#34;Cannot convert {type(other)} into a matlab object.&#34;)
 
     @classmethod
-    def _from_runtime(cls, obj):
-        return cls.from_any(obj, _from_runtime=True)
+    def _from_runtime(cls, obj, _runtime):
+        return cls.from_any(obj, _runtime=_runtime)
 
     @classmethod
     def _to_runtime(cls, obj):
@@ -1053,8 +1081,7 @@ def as_struct(self):
             return obj
 
         elif sparse and isinstance(obj, sparse.sparray):
-            from .SparseArray import SparseArray
-
+            SparseArray = _imports.SparseArray
             return SparseArray.from_any(obj)._as_runtime()
 
         else:
@@ -1125,7 +1152,8 @@ def as_struct(self):
         # close to np.array_repr, but hides dtype.
         pre = type(self).__name__ + &#34;(&#34;
         suf = &#34;)&#34;
-        return pre + np.array2string(self, prefix=pre, suffix=suf, separator=&#34;, &#34;) + suf
+        arr = np.array2string(self, prefix=pre, suffix=suf, separator=&#34;, &#34;)
+        return pre + arr + suf
 
     def __bool__(self):
         # NumPy arrays do not lower to True/False in a boolean context.
@@ -1164,7 +1192,9 @@ def as_struct(self):
 
     def __delitem__(self, index):
         if isinstance(index, tuple):
-            raise TypeError(&#34;Multidimensional indices are not supported in `del`.&#34;)
+            raise TypeError(
+                &#34;Multidimensional indices are not supported in `del`.&#34;
+            )
 
         # --- list: delete sequentially, from tail to head -------------
         if hasattr(index, &#34;__iter__&#34;):
@@ -1223,7 +1253,7 @@ def as_struct(self):
                 index = len(self) + index
             new_shape = list(np.shape(self))
             new_shape[0] -= 1
-            self[index:-1] = self[index + 1 :]
+            self[index:-1] = self[index + 1:]
             np.ndarray.resize(self, new_shape, refcheck=False)
 
     def _resize_for_index(self, index, set_default=True):
@@ -1301,8 +1331,8 @@ def as_struct(self):
                 arr[scalar_index] = scalar
 
     def _return_delayed(self, index):
-        from ..cell import Cell
-        from ..struct import Struct  # FIXME: avoid circular import
+        Cell = _imports.Cell
+        Struct = _imports.Struct
 
         if not isinstance(index, tuple):
             index = (index,)
@@ -1591,10 +1621,9 @@ def as_struct(self):
             #   the delayed struct (`delayed`).
             #
             #   We do not need to use a `DelayedStruct` here.
-
             parent = getattr(self, &#34;_delayed_wrapper&#34;, self)
 
-            from ..struct import Struct  # FIXME: circular imports
+            Struct = _imports.Struct
 
             delayed = Struct(self.shape)
             opt = dict(
@@ -1624,7 +1653,8 @@ def as_struct(self):
             # in the &#34;deal&#34; array.
             value = value.broadcast_to_struct(self)
             opt = dict(
-                flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;, &#34;multi_index&#34;], op_flags=[&#34;readonly&#34;]
+                flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;, &#34;multi_index&#34;],
+                op_flags=[&#34;readonly&#34;]
             )
             with np.nditer(arr, **opt) as iter:
                 for elem in iter:
@@ -1674,7 +1704,7 @@ def as_struct(self):
                 item.setdefault(key, value)
 
     def update(self, other):
-        from ..struct import Struct  # FIXME: circular imports
+        Struct = _imports.Struct
 
         other = Struct.from_any(other)
         other = np.ndarray.view(other, np.ndarray)
@@ -1682,7 +1712,8 @@ def as_struct(self):
 
         arr = np.ndarray.view(self, np.ndarray)
         opt = dict(
-            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;, &#34;multi_index&#34;], op_flags=[&#34;readonly&#34;]
+            flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;, &#34;multi_index&#34;],
+            op_flags=[&#34;readonly&#34;]
         )
         with np.nditer(arr, **opt) as iter:
             for elem in iter:
@@ -1719,12 +1750,11 @@ def as_struct(self):
             return cls.from_any(arg, **kwargs)
 
         def broadcast_to_struct(self, struct):
-            shape = struct.shape + self.shape[len(struct.shape) :]
+            shape = struct.shape + self.shape[len(struct.shape):]
             return np.broadcast_to(self, shape)
 
         def to_cell(self):
-            from ..cell import Cell  # FIXME: circular imports
-
+            Cell = _imports.Cell
             return np.ndarray.view(self, Cell)</code></pre>
 </details>
 <div class="desc"><p>A MutableMapping is a generic container for associating
@@ -1843,7 +1873,7 @@ print(s)
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def update(self, other):
-    from ..struct import Struct  # FIXME: circular imports
+    Struct = _imports.Struct
 
     other = Struct.from_any(other)
     other = np.ndarray.view(other, np.ndarray)
@@ -1851,7 +1881,8 @@ print(s)
 
     arr = np.ndarray.view(self, np.ndarray)
     opt = dict(
-        flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;, &#34;multi_index&#34;], op_flags=[&#34;readonly&#34;]
+        flags=[&#34;refs_ok&#34;, &#34;zerosize_ok&#34;, &#34;multi_index&#34;],
+        op_flags=[&#34;readonly&#34;]
     )
     with np.nditer(arr, **opt) as iter:
         for elem in iter:
@@ -1963,7 +1994,7 @@ In either case, this is followed by: for k, v in F.items(): D[k] = v</p></div>
         new_shape[0] *= value
         np.ndarray.resize(self, new_shape, refcheck=False)
         for i in range(1, value):
-            self[i * length : (i + 1) * length] = self[:length]
+            self[i * length:(i + 1) * length] = self[:length]
         return self
 
     # In lists, __contains__ should be treated as meaning &#34;contains this
@@ -2054,7 +2085,7 @@ In either case, this is followed by: for k, v in F.items(): D[k] = v</p></div>
         new_shape = list(np.shape(self))
         new_shape[0] += 1
         np.ndarray.resize(self, new_shape, refcheck=False)
-        self[index + 1 :] = self[index:-1]
+        self[index + 1:] = self[index:-1]
         self[index] = obj
 
     def pop(self, index=-1):
@@ -2219,7 +2250,7 @@ have the exact same shape.</li>
     new_shape = list(np.shape(self))
     new_shape[0] += 1
     np.ndarray.resize(self, new_shape, refcheck=False)
-    self[index + 1 :] = self[index:-1]
+    self[index + 1:] = self[index:-1]
     self[index] = obj</code></pre>
 </details>
 <div class="desc"><p>Insert object before index.</p></div>
@@ -2525,7 +2556,7 @@ under the hood. However, we use different defaults
         )
 
     @classmethod
-    def _from_runtime(cls, dictobj: dict):
+    def _from_runtime(cls, dictobj: dict, runtime=None):
         # NOTE: If there is a single nonzero value, it is passed as a
         # scalar float, rather than a matlab.double.
         if dictobj[&#34;type__&#34;] != &#34;sparse&#34;:

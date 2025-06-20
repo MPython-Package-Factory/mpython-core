@@ -99,7 +99,7 @@ el.replaceWith(d);
         return np.ndarray.view(self, np.ndarray)
 
     @classmethod
-    def _from_runtime(cls, other) -&gt; &#34;Array&#34;:
+    def _from_runtime(cls, other, runtime=None) -&gt; &#34;Array&#34;:
         other = np.asarray(other)
         if len(other.shape) == 2 and other.shape[0] == 1:
             other = other.squeeze(0)
@@ -227,7 +227,7 @@ el.replaceWith(d);
         array : Array
             Converted array.
         &#34;&#34;&#34;
-        from .cell import Cell  # FIXME: avoid circular import
+        Cell = _imports.Cell
 
         if not isinstance(other, Cell):
             raise TypeError(f&#34;Expected a {Cell} but got a {type(other)}&#34;)

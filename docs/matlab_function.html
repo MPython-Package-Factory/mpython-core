@@ -48,7 +48,7 @@ el.replaceWith(d);
 <dl>
 <dt id="mpython.matlab_function.MatlabFunction"><code class="flex name class">
 <span>class <span class="ident">MatlabFunction</span></span>
-<span>(</span><span>matlab_object)</span>
+<span>(</span><span>matlab_object, runtime)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -59,6 +59,8 @@ el.replaceWith(d);
     &#34;&#34;&#34;
     Wrapper for matlab function handles.
 
+    End users should not have to instantiate such objects themselves.
+
     Example
     -------
     ```python
@@ -67,7 +69,7 @@ el.replaceWith(d);
     ```
     &#34;&#34;&#34;
 
-    def __init__(self, matlab_object):
+    def __init__(self, matlab_object, runtime):
         super().__init__()
 
         matlab = _import_matlab()
@@ -75,26 +77,26 @@ el.replaceWith(d);
             raise TypeError(&#34;Expected a matlab.object&#34;)
 
         self._matlab_object = matlab_object
+        self._runtime = runtime
 
     def _as_runtime(self):
         return self._matlab_object
 
     @classmethod
-    def _from_runtime(cls, other):
-        return cls(other)
+    def _from_runtime(cls, other, runtime):
+        return cls(other, runtime)
 
     @classmethod
-    def from_any(cls, other):
+    def from_any(cls, other, runtime=None):
         if isinstance(other, MatlabFunction):
             return other
-        return cls._from_runtime(other)
+        return cls._from_runtime(other, runtime)
 
     def __call__(self, *args, **kwargs):
-        from .runtime import Runtime
-
-        return Runtime.call(self._matlab_object, *args, **kwargs)</code></pre>
+        return self._runtime.call(self._matlab_object, *args, **kwargs)</code></pre>
 </details>
 <div class="desc"><p>Wrapper for matlab function handles.</p>
+<p>End users should not have to instantiate such objects themselves.</p>
 <h2 id="example">Example</h2>
 <pre><code class="language-python">times2 = Runtime.call(&quot;eval&quot;, &quot;@(x) 2.*x&quot;)
 assert(time2(1) == 2)

@@ -56,14 +56,30 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MatlabClass(MatlabType):
+    &#34;&#34;&#34;
+    Base class for wrapped MATLAB classes.
+
+    The MATLAB package wrapped by mpython must define its own inheriting
+    class that points to an appropriate runtime.
+
+    Example
+    -------
+    ```python
+    class MyPackageRuntimeMixin:
+        @classmethod
+        def _runtime(cls):
+            return MyPackageRuntime
+
+    class MyPackageClass(MyPackageRuntimeMixin, MatlabClass):
+        ...
+    ```
+    &#34;&#34;&#34;
     _subclasses = dict()
 
     def __new__(cls, *args, _objdict=None, **kwargs):
         if _objdict is None:
             if cls.__name__ in MatlabClass._subclasses.keys():
-                from .runtime import Runtime
-
-                obj = Runtime.call(cls.__name__, *args, **kwargs)
+                obj = cls._runtime().call(cls.__name__, *args, **kwargs)
             else:
                 obj = super().__new__(cls)
         else:
@@ -91,7 +107,7 @@ el.replaceWith(d);
         return other
 
     @classmethod
-    def _from_runtime(cls, objdict):
+    def _from_runtime(cls, objdict, runtime=None):
         if objdict[&#34;class__&#34;] in MatlabClass._subclasses.keys():
             obj = MatlabClass._subclasses[objdict[&#34;class__&#34;]](_objdict=objdict)
         else:
@@ -141,18 +157,17 @@ el.replaceWith(d);
         # FIXME: This should not need to call matlab
         try:
             return tuple(
-                self._process_index(i, k + 1, len(ind)) for k, i in enumerate(ind)
+                self._process_index(i, k + 1, len(ind))
+                for k, i in enumerate(ind)
             )
         except TypeError:
             pass
 
-        from .runtime import Runtime
-
         if not hasattr(self, &#34;__endfn&#34;):
-            self.__endfn = Runtime.call(&#34;str2func&#34;, &#34;end&#34;)
+            self.__endfn = self._runtime().call(&#34;str2func&#34;, &#34;end&#34;)
 
         def end():
-            return Runtime.call(self.__endfn, self._as_runtime(), k, n)
+            return self._runtime().call(self.__endfn, self._as_runtime(), k, n)
 
         if isinstance(ind, int):
             if ind &gt;= 0:
@@ -195,7 +210,18 @@ el.replaceWith(d);
 
         return index</code></pre>
 </details>
-<div class="desc"><p>Generic type for objects that have an exact matlab equivalent.</p></div>
+<div class="desc"><p>Base class for wrapped MATLAB classes.</p>
+<p>The MATLAB package wrapped by mpython must define its own inheriting
+class that points to an appropriate runtime.</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python">class MyPackageRuntimeMixin:
+    @classmethod
+    def _runtime(cls):
+        return MyPackageRuntime
+
+class MyPackageClass(MyPackageRuntimeMixin, MatlabClass):
+    ...
+</code></pre></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="mpython.core.base_types.MatlabType" href="core/base_types.html#mpython.core.base_types.MatlabType">MatlabType</a></li>

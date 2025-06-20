@@ -59,15 +59,21 @@ el.replaceWith(d);
 
     @property
     def as_num(self):
-        raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a numeric array&#34;)
+        raise TypeError(
+            f&#34;Cannot interpret a {type(self).__name__} as a numeric array&#34;
+        )
 
     @property
     def as_cell(self):
-        raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a cell&#34;)
+        raise TypeError(
+            f&#34;Cannot interpret a {type(self).__name__} as a cell&#34;
+        )
 
     @property
     def as_struct(self):
-        raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a struct&#34;)
+        raise TypeError(
+            f&#34;Cannot interpret a {type(self).__name__} as a struct&#34;
+        )
 
     # TODO: `as_obj` for object arrays?</code></pre>
 </details>
@@ -91,7 +97,9 @@ el.replaceWith(d);
 </summary>
 <pre><code class="python">@property
 def as_cell(self):
-    raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a cell&#34;)</code></pre>
+    raise TypeError(
+        f&#34;Cannot interpret a {type(self).__name__} as a cell&#34;
+    )</code></pre>
 </details>
 <div class="desc"></div>
 </dd>
@@ -103,7 +111,9 @@ def as_cell(self):
 </summary>
 <pre><code class="python">@property
 def as_num(self):
-    raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a numeric array&#34;)</code></pre>
+    raise TypeError(
+        f&#34;Cannot interpret a {type(self).__name__} as a numeric array&#34;
+    )</code></pre>
 </details>
 <div class="desc"></div>
 </dd>
@@ -115,7 +125,9 @@ def as_num(self):
 </summary>
 <pre><code class="python">@property
 def as_struct(self):
-    raise TypeError(f&#34;Cannot interpret a {type(self).__name__} as a struct&#34;)</code></pre>
+    raise TypeError(
+        f&#34;Cannot interpret a {type(self).__name__} as a struct&#34;
+    )</code></pre>
 </details>
 <div class="desc"></div>
 </dd>
@@ -148,16 +160,14 @@ def as_struct(self):
 
         !!! warning &#34;Conversion is performed in-place when possible.&#34;
         &#34;&#34;&#34;
-        # FIXME: Circular import
-        from ..array import Array
-
-        # FIXME: Circular import
-        from ..cell import Cell
-        from ..matlab_class import MatlabClass
-        from ..matlab_function import MatlabFunction
-        from ..sparse_array import SparseArray
-        from ..struct import Struct
-        from .delayed_types import AnyDelayedArray
+        # Circular import
+        Array = _imports.Array
+        Cell = _imports.Cell
+        MatlabClass = _imports.MatlabClass
+        MatlabFunction = _imports.MatlabFunction
+        SparseArray = _imports.SparseArray
+        Struct = _imports.Struct
+        AnyDelayedArray = _imports.AnyDelayedArray
 
         # Conversion rules:
         # - we do not convert to matlab&#39;s own array types
@@ -166,7 +176,7 @@ def as_struct(self):
         #   the matlab runtime;
         # - instead, we convert to python types that mimic matlab types.
         _from_any = partial(cls.from_any, **kwargs)
-        _from_runtime = kwargs.pop(&#34;_from_runtime&#34;, False)
+        _runtime = kwargs.pop(&#34;_runtime&#34;, None)
 
         if isinstance(other, MatlabType):
             if isinstance(other, AnyDelayedArray):
@@ -188,21 +198,21 @@ def as_struct(self):
                 elif type__ == &#34;structarray&#34;:
                     # MPython returns a list of dictionaries in data__
                     # and the array shape in size__.
-                    return Struct._from_runtime(other)
+                    return Struct._from_runtime(other, _runtime)
 
                 elif type__ == &#34;cell&#34;:
                     # MPython returns a list of dictionaries in data__
                     # and the array shape in size__.
-                    return Cell._from_runtime(other)
+                    return Cell._from_runtime(other, _runtime)
 
                 elif type__ == &#34;object&#34;:
                     # MPython returns the object&#39;s fields serialized
                     # in a dictionary.
-                    return MatlabClass._from_runtime(other)
+                    return MatlabClass._from_runtime(other, _runtime)
 
                 elif type__ == &#34;sparse&#34;:
                     # MPython returns the coordinates and values in a dict.
-                    return SparseArray._from_runtime(other)
+                    return SparseArray._from_runtime(other, _runtime)
 
                 elif type__ == &#34;char&#34;:
                     # Character array that is not a row vector
@@ -214,26 +224,28 @@ def as_struct(self):
                     size = size[:-1] + [1]
                     other[&#34;type__&#34;] = &#34;cell&#34;
                     other[&#34;size__&#34;] = np.asarray([size])
-                    return Cell._from_runtime(other)
+                    return Cell._from_runtime(other, _runtime)
 
                 else:
                     raise ValueError(&#34;Don&#39;t know what to do with type&#34;, type__)
 
             else:
-                other = type(other)(zip(other.keys(), map(_from_any, other.values())))
+                other = type(other)(
+                    zip(other.keys(), map(_from_any, other.values()))
+                )
                 return Struct.from_any(other)
 
         if isinstance(other, (list, tuple, set)):
             # nested tuples are cells of cells, not cell arrays
-            if _from_runtime:
-                return Cell._from_runtime(other)
+            if _runtime:
+                return Cell._from_runtime(other, _runtime)
             else:
                 return Cell.from_any(other)
 
         if isinstance(other, (np.ndarray, int, float, complex, bool)):
             # [array of] numbers -&gt; Array
-            if _from_runtime:
-                return Array._from_runtime(other)
+            if _runtime:
+                return Array._from_runtime(other, _runtime)
             else:
                 return Array.from_any(other)
 
@@ -249,20 +261,20 @@ def as_struct(self):
 
         matlab = _import_matlab()
         if matlab and isinstance(other, matlab.object):
-            return MatlabFunction.from_any(other)
+            return MatlabFunction._from_runtime(other, _runtime)
 
         if type(other) in _matlab_array_types():
-            return Array._from_runtime(other)
+            return Array._from_runtime(other, _runtime)
 
         if hasattr(other, &#34;__iter__&#34;):
             # Iterable -&gt; let&#39;s try to make it a cell
-            return cls.from_any(list(other), _from_runtime=_from_runtime)
+            return cls.from_any(list(other), _runtime=_runtime)
 
         raise TypeError(f&#34;Cannot convert {type(other)} into a matlab object.&#34;)
 
     @classmethod
-    def _from_runtime(cls, obj):
-        return cls.from_any(obj, _from_runtime=True)
+    def _from_runtime(cls, obj, _runtime):
+        return cls.from_any(obj, _runtime=_runtime)
 
     @classmethod
     def _to_runtime(cls, obj):
@@ -294,8 +306,7 @@ def as_struct(self):
             return obj
 
         elif sparse and isinstance(obj, sparse.sparray):
-            from .SparseArray import SparseArray
-
+            SparseArray = _imports.SparseArray
             return SparseArray.from_any(obj)._as_runtime()
 
         else:
