@@ -37,6 +37,8 @@ pip install mpython-core
 
 ## Usage
 
+For extended details, see the [reference documentation](https://mpython-package-factory.github.io/mpython-core/).
+
 ### Example: Working with MATLAB Data Types
 
 ```python
