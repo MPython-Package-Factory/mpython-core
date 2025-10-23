@@ -8,21 +8,21 @@ from .utils import _spcopy_if_needed, sparse
 
 if sparse:
 
-    class WrappedSparseArray(sparse.sparray, AnyWrappedArray):
+    class WrappedSparseArray(sparse.spmatrix, AnyWrappedArray):
         """Base class for sparse arrays."""
 
         def to_dense(self) -> "Array":
             return Array.from_any(self.todense())
 
-    class SparseArray(sparse.csc_array, _SparseMixin, WrappedSparseArray):
+    class SparseArray(sparse.csc_matrix, _SparseMixin, WrappedSparseArray):
         """
-        Matlab sparse arrays (scipy.sparse backend).
+        Matlab sparse matrices (scipy.sparse backend).
 
         ```python
         # Instantiate from size
-        SparseArray(N, M, ...)
-        SparseArray([N, M, ...])
-        SparseArray.from_shape([N, M, ...])
+        SparseArray(N, M)
+        SparseArray([N, M])
+        SparseArray.from_shape([N, M])
 
         # Instantiate from existing sparse or dense array
         SparseArray(other_array)
@@ -45,7 +45,7 @@ if sparse:
                 ndim = len(arg)
                 return super().__init__(([], [[]] * ndim), shape=arg, **kwargs)
             else:
-                if not isinstance(arg, (np.ndarray, sparse.sparray)):
+                if not isinstance(arg, (np.ndarray, sparse.spmatrix)):
                     arg = np.asanyarray(arg)
                 return super().__init__(arg, **kwargs)
 
@@ -71,7 +71,7 @@ if sparse:
                 New array.
             """
             indices = np.asarray(indices)
-            coo = sparse.coo_array((values, indices), shape=shape, **kw)
+            coo = sparse.coo_matrix((values, indices), shape=shape, **kw)
             return cls.from_any(coo)
 
         @classmethod
@@ -124,7 +124,7 @@ if sparse:
             """
             copy = kwargs.pop("copy", None)
             inp = other
-            if not isinstance(other, sparse.sparray):
+            if not isinstance(other, sparse.spmatrix):
                 other = np.asanyarray(other, **kwargs)
             other = cls(other, **kwargs)
             other = _spcopy_if_needed(other, inp, copy)

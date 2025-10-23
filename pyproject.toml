@@ -32,6 +32,9 @@ dependencies = [
     "numpy"
 ]
 
+[project.optional-dependencies]
+sparse = ["scipy>=0.7"]
+
 [tool.setuptools.dynamic]
 version = {attr = "mpython._version.__version__"}
 
