@@ -108,7 +108,7 @@ def _spcopy_if_needed(out, inp, copy=None):
     """Fallback implementation for asarray(*, copy: bool)"""
     if (
         out is not None
-        and isinstance(inp, sparse.sparray)
+        and isinstance(inp, sparse.spmatrix)
         and out.data.data != inp.data.data
     ):
         if copy:
