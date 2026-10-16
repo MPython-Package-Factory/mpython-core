@@ -12,7 +12,7 @@ license = {file = "LICENSE"}
 authors = [
   {name = "Johan Medrano", email = "johan.medrano@ucl.ac.uk"},
   {name = "Yael Balbastre", email = "y.balbastre@ucl.ac.uk"}]
-requires-python = ">=3.3,<3.14"
+requires-python = ">=3.3,<3.15"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
@@ -27,6 +27,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14"
 ]
 dependencies = [
     "numpy"
