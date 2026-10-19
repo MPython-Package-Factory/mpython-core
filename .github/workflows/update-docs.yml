@@ -3,6 +3,9 @@ name: Update Docs
 on:
   workflow_dispatch: 
   push:
+    branches:
+      - master
+      - main
     paths:
       - 'mpython/**'
       - '.github/workflows/update-docs.yml'
