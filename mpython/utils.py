@@ -146,7 +146,10 @@ def _spcopy_if_needed(out, inp, copy=None):
 
 def _matlab_array_types():
     """Return a mapping from matlab array type to numpy data dtype."""
-    matlab = _import_matlab()
+    # This assumes that `matlab` has been imported at some point,
+    # which in practice is always the case when this function is
+    # called.
+    matlab = sys.modules.get("matlab")
     if matlab:
         return {
             matlab.double: np.float64,
