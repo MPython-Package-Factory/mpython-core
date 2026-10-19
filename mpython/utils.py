@@ -100,15 +100,17 @@ def _is_matlab_object(obj) -> bool:
     `matlab_runtime` is never imported here: if its `remote` module
     was never imported, no remote handle can exist.
     """
+    # In-process runtime (any matlab-runtime version)
+    matlab = _import_matlab()
+    matlab_object = getattr(matlab, "object", None)
+    if matlab_object is not None and isinstance(obj, matlab_object):
+        return True
+    # Out-of-process runtime (recent matlab-runtime only)
     remote = sys.modules.get("matlab_runtime.remote")
     is_matlab_object = getattr(remote, "is_matlab_object", None)
     if is_matlab_object is not None:
         return bool(is_matlab_object(obj))
-    matlab = _import_matlab()
-    if matlab is None:
-        return False
-    matlab_object = getattr(matlab, "object", None)
-    return matlab_object is not None and isinstance(obj, matlab_object)
+    return False
 
 
 def _copy_if_needed(out, inp, copy=None) -> np.ndarray:
