@@ -101,7 +101,9 @@ def _is_matlab_object(obj) -> bool:
     was never imported, no remote handle can exist.
     """
     # In-process runtime (any matlab-runtime version)
-    matlab = _import_matlab()
+    # No `matlab.object` can exist unless `matlab` was already imported,
+    # so look it up instead of importing (a failed import is slow).
+    matlab = sys.modules.get("matlab")
     matlab_object = getattr(matlab, "object", None)
     if matlab_object is not None and isinstance(obj, matlab_object):
         return True
