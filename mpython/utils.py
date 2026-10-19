@@ -1,4 +1,5 @@
 import importlib
+import sys
 
 import numpy as np
 
@@ -89,6 +90,31 @@ def _import_matlab():
     return matlab
 
 
+def _is_matlab_object(obj) -> bool:
+    """
+    Return True if `obj` is an opaque matlab object (`matlab.object`).
+
+    Works with in-process runtimes (`matlab` importable) and with
+    out-of-process runtimes (`matlab_runtime.remote`), where matlab
+    objects are proxied by handles and `matlab` may not be importable.
+    `matlab_runtime` is never imported here: if its `remote` module
+    was never imported, no remote handle can exist.
+    """
+    # In-process runtime (any matlab-runtime version)
+    # No `matlab.object` can exist unless `matlab` was already imported,
+    # so look it up instead of importing (a failed import is slow).
+    matlab = sys.modules.get("matlab")
+    matlab_object = getattr(matlab, "object", None)
+    if matlab_object is not None and isinstance(obj, matlab_object):
+        return True
+    # Out-of-process runtime (recent matlab-runtime only)
+    remote = sys.modules.get("matlab_runtime.remote")
+    is_matlab_object = getattr(remote, "is_matlab_object", None)
+    if is_matlab_object is not None:
+        return bool(is_matlab_object(obj))
+    return False
+
+
 def _copy_if_needed(out, inp, copy=None) -> np.ndarray:
     """Fallback implementation for asarray(*, copy: bool)"""
     if (
@@ -120,14 +146,17 @@ def _spcopy_if_needed(out, inp, copy=None):
 
 def _matlab_array_types():
     """Return a mapping from matlab array type to numpy data dtype."""
-    matlab = _import_matlab()
+    # This assumes that `matlab` has been imported at some point,
+    # which in practice is always the case when this function is
+    # called.
+    matlab = sys.modules.get("matlab")
     if matlab:
         return {
             matlab.double: np.float64,
             matlab.single: np.float32,
             matlab.logical: np.bool,
             matlab.uint64: np.uint64,
-            matlab.uint32: np.uint64,
+            matlab.uint32: np.uint32,
             matlab.uint16: np.uint16,
             matlab.uint8: np.uint8,
             matlab.int64: np.int64,

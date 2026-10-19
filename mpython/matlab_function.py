@@ -1,5 +1,5 @@
 from .core import MatlabType
-from .utils import _import_matlab
+from .utils import _is_matlab_object
 
 
 class MatlabFunction(MatlabType):
@@ -19,8 +19,7 @@ class MatlabFunction(MatlabType):
     def __init__(self, matlab_object, runtime):
         super().__init__()
 
-        matlab = _import_matlab()
-        if not isinstance(matlab_object, matlab.object):
+        if not _is_matlab_object(matlab_object):
             raise TypeError("Expected a matlab.object")
 
         self._matlab_object = matlab_object

@@ -92,12 +92,16 @@ class _SparseMixin:
         size = np.array(dictobj["size__"], dtype=np.uint64).ravel()
         size = size.tolist()
         ndim = len(size)
-        if isinstance(dictobj["values__"], float):
+        values = dictobj["values__"]
+        if isinstance(values, (np.ndarray, np.generic)):
+            # out-of-process runtimes return numpy arrays/scalars
+            dtype = values.dtype
+        elif isinstance(values, float):
             dtype = np.double
         else:
-            dtype = _matlab_array_types()[type(dictobj["values__"])]
+            dtype = _matlab_array_types()[type(values)]
         indices = np.asarray(dictobj["indices__"], dtype=np.long)
-        values = np.asarray(dictobj["values__"], dtype=dtype).ravel()
+        values = np.asarray(values, dtype=dtype).ravel()
         indices -= 1
         if indices.size == 0:
             indices = indices.reshape([0, ndim])

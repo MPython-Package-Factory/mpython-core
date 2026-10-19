@@ -2,7 +2,9 @@ from functools import partial
 
 import numpy as np
 
-from ..utils import _import_matlab, _matlab_array_types, DelayedImport
+from ..utils import _is_matlab_object, _matlab_array_types, DelayedImport
+
+_NUMBERS = (np.number, np.bool_, int, float, complex, bool)
 
 
 class _imports(DelayedImport):
@@ -108,7 +110,7 @@ class MatlabType:
             else:
                 return Cell.from_any(other)
 
-        if isinstance(other, (np.ndarray, int, float, complex, bool)):
+        if isinstance(other, (np.ndarray, *_NUMBERS)):
             # [array of] numbers -> Array
             if _runtime:
                 return Array._from_runtime(other, _runtime)
@@ -125,8 +127,7 @@ class MatlabType:
             # This can happen when matlab code is called without `nargout`
             return other
 
-        matlab = _import_matlab()
-        if matlab and isinstance(other, matlab.object):
+        if _is_matlab_object(other):
             return MatlabFunction._from_runtime(other, _runtime)
 
         if type(other) in _matlab_array_types():
