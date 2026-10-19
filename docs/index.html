@@ -1316,8 +1316,7 @@ class MyPackageClass(MyPackageRuntimeMixin, MatlabClass):
     def __init__(self, matlab_object, runtime):
         super().__init__()
 
-        matlab = _import_matlab()
-        if not isinstance(matlab_object, matlab.object):
+        if not _is_matlab_object(matlab_object):
             raise TypeError(&#34;Expected a matlab.object&#34;)
 
         self._matlab_object = matlab_object

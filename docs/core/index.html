@@ -1017,7 +1017,7 @@ def as_struct(self):
             else:
                 return Cell.from_any(other)
 
-        if isinstance(other, (np.ndarray, int, float, complex, bool)):
+        if isinstance(other, (np.ndarray, *_NUMBERS)):
             # [array of] numbers -&gt; Array
             if _runtime:
                 return Array._from_runtime(other, _runtime)
@@ -1034,8 +1034,7 @@ def as_struct(self):
             # This can happen when matlab code is called without `nargout`
             return other
 
-        matlab = _import_matlab()
-        if matlab and isinstance(other, matlab.object):
+        if _is_matlab_object(other):
             return MatlabFunction._from_runtime(other, _runtime)
 
         if type(other) in _matlab_array_types():
@@ -2565,12 +2564,16 @@ under the hood. However, we use different defaults
         size = np.array(dictobj[&#34;size__&#34;], dtype=np.uint64).ravel()
         size = size.tolist()
         ndim = len(size)
-        if isinstance(dictobj[&#34;values__&#34;], float):
+        values = dictobj[&#34;values__&#34;]
+        if isinstance(values, (np.ndarray, np.generic)):
+            # out-of-process runtimes return numpy arrays/scalars
+            dtype = values.dtype
+        elif isinstance(values, float):
             dtype = np.double
         else:
-            dtype = _matlab_array_types()[type(dictobj[&#34;values__&#34;])]
+            dtype = _matlab_array_types()[type(values)]
         indices = np.asarray(dictobj[&#34;indices__&#34;], dtype=np.long)
-        values = np.asarray(dictobj[&#34;values__&#34;], dtype=dtype).ravel()
+        values = np.asarray(values, dtype=dtype).ravel()
         indices -= 1
         if indices.size == 0:
             indices = indices.reshape([0, ndim])
