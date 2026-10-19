@@ -4,6 +4,8 @@ import numpy as np
 
 from ..utils import _is_matlab_object, _matlab_array_types, DelayedImport
 
+_NUMBERS = (np.number, np.bool_, int, float, complex, bool)
+
 
 class _imports(DelayedImport):
     Array = 'mpython.array.Array'
@@ -108,8 +110,7 @@ class MatlabType:
             else:
                 return Cell.from_any(other)
 
-        if isinstance(other, (np.ndarray, np.number, np.bool_,
-                              int, float, complex, bool)):
+        if isinstance(other, (np.ndarray, *_NUMBERS)):
             # [array of] numbers -> Array
             if _runtime:
                 return Array._from_runtime(other, _runtime)
