@@ -1,4 +1,5 @@
 import importlib
+import sys
 
 import numpy as np
 
@@ -89,6 +90,27 @@ def _import_matlab():
     return matlab
 
 
+def _is_matlab_object(obj) -> bool:
+    """
+    Return True if `obj` is an opaque matlab object (`matlab.object`).
+
+    Works with in-process runtimes (`matlab` importable) and with
+    out-of-process runtimes (`matlab_runtime.remote`), where matlab
+    objects are proxied by handles and `matlab` may not be importable.
+    `matlab_runtime` is never imported here: if its `remote` module
+    was never imported, no remote handle can exist.
+    """
+    remote = sys.modules.get("matlab_runtime.remote")
+    is_matlab_object = getattr(remote, "is_matlab_object", None)
+    if is_matlab_object is not None:
+        return bool(is_matlab_object(obj))
+    matlab = _import_matlab()
+    if matlab is None:
+        return False
+    matlab_object = getattr(matlab, "object", None)
+    return matlab_object is not None and isinstance(obj, matlab_object)
+
+
 def _copy_if_needed(out, inp, copy=None) -> np.ndarray:
     """Fallback implementation for asarray(*, copy: bool)"""
     if (
@@ -127,7 +149,7 @@ def _matlab_array_types():
             matlab.single: np.float32,
             matlab.logical: np.bool,
             matlab.uint64: np.uint64,
-            matlab.uint32: np.uint64,
+            matlab.uint32: np.uint32,
             matlab.uint16: np.uint16,
             matlab.uint8: np.uint8,
             matlab.int64: np.int64,

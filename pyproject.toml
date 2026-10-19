@@ -35,6 +35,7 @@ dependencies = [
 
 [project.optional-dependencies]
 sparse = ["scipy>=0.7"]
+test = ["pytest"]
 
 [tool.setuptools.dynamic]
 version = {attr = "mpython._version.__version__"}
