@@ -970,6 +970,9 @@ def as_struct(self):
                 elif type__ == &#34;emptystruct&#34;:
                     return Struct.from_shape([0])
 
+                elif type__ == &#34;emptynum&#34;:
+                    return Array._from_runtime(other[&#34;data__&#34;], _runtime) 
+                    
                 elif type__ == &#34;structarray&#34;:
                     # MPython returns a list of dictionaries in data__
                     # and the array shape in size__.
