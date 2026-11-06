@@ -63,6 +63,9 @@ class MatlabType:
                 elif type__ == "emptystruct":
                     return Struct.from_shape([0])
 
+                elif type__ == "emptynum":
+                    return Array._from_runtime(other["data__"], _runtime) 
+                    
                 elif type__ == "structarray":
                     # MPython returns a list of dictionaries in data__
                     # and the array shape in size__.
